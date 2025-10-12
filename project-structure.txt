@@ -1,0 +1,108 @@
+├── api_gateway/
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   │   ├── __init__.cpython-311.pyc (0.1 KB)
+│   │   │   ├── settings.cpython-311.pyc (3.2 KB)
+│   │   │   ├── urls.cpython-311.pyc (1.0 KB)
+│   │   │   └── wsgi.cpython-311.pyc (0.6 KB)
+│   │   ├── __init__.py (0.0 KB)
+│   │   ├── asgi.py (0.4 KB)
+│   │   ├── settings.py (3.0 KB)
+│   │   ├── urls.py (0.8 KB)
+│   │   └── wsgi.py (0.4 KB)
+│   ├── Dockerfile (0.4 KB)
+│   ├── manage.py (0.7 KB)
+│   ├── .env 
+│   └── requirements.txt (0.2 KB)
+├── auth_service/
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   │   ├── __init__.cpython-311.pyc (0.1 KB)
+│   │   │   ├── settings.cpython-311.pyc (3.1 KB)
+│   │   │   ├── urls.cpython-311.pyc (1.0 KB)
+│   │   │   └── wsgi.cpython-311.pyc (0.6 KB)
+│   │   ├── __init__.py (0.0 KB)
+│   │   ├── asgi.py (0.4 KB)
+│   │   ├── settings.py (2.7 KB)
+│   │   ├── urls.py (0.8 KB)
+│   │   └── wsgi.py (0.4 KB)
+│   ├── Dockerfile (0.4 KB)
+│   ├── manage.py (0.7 KB)
+│   ├── .env 
+│   └── requirements.txt (0.2 KB)
+├── docker/
+│   └── nginx.conf (0.7 KB)
+├── file_storage/
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   │   ├── __init__.cpython-311.pyc (0.1 KB)
+│   │   │   ├── settings.cpython-311.pyc (3.0 KB)
+│   │   │   ├── urls.cpython-311.pyc (1.0 KB)
+│   │   │   └── wsgi.cpython-311.pyc (0.6 KB)
+│   │   ├── __init__.py (0.0 KB)
+│   │   ├── asgi.py (0.4 KB)
+│   │   ├── settings.py (2.7 KB)
+│   │   ├── urls.py (0.8 KB)
+│   │   └── wsgi.py (0.4 KB)
+│   ├── Dockerfile (0.4 KB)
+│   ├── manage.py (0.7 KB)
+│   ├── .env 
+│   └── requirements.txt (0.2 KB)
+├── frontend/
+│   ├── public/
+│   │   └── favicon.ico (4.2 KB)
+│   ├── src/
+│   │   ├── __tests__/
+│   │   │   └── App.spec.js (0.3 KB)
+│   │   ├── router/
+│   │   │   └── index.js (0.2 KB)
+│   │   ├── stores/
+│   │   │   └── baseStore.js (0.1 KB)
+│   │   ├── App.vue (0.2 KB)
+│   │   └── main.js (0.2 KB)
+│   ├── Dockerfile (0.2 KB)
+│   ├── index.html (0.3 KB)
+│   ├── jsconfig.json (0.1 KB)
+│   ├── package-lock.json (161.2 KB)
+│   ├── package.json (0.6 KB)
+│   ├── README.md (1.1 KB)
+│   ├── vite.config.js (0.4 KB)
+│   └── vitest.config.js (0.4 KB)
+├── image_processing/
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   │   ├── __init__.cpython-311.pyc (0.1 KB)
+│   │   │   ├── settings.cpython-311.pyc (3.0 KB)
+│   │   │   ├── urls.cpython-311.pyc (1.0 KB)
+│   │   │   └── wsgi.cpython-311.pyc (0.6 KB)
+│   │   ├── __init__.py (0.0 KB)
+│   │   ├── asgi.py (0.4 KB)
+│   │   ├── settings.py (2.7 KB)
+│   │   ├── urls.py (0.8 KB)
+│   │   └── wsgi.py (0.4 KB)
+│   ├── Dockerfile (0.4 KB)
+│   ├── manage.py (0.7 KB)
+│   ├── .env 
+│   └── requirements.txt (0.2 KB)
+├── user_profile/
+│   ├── app/
+│   │   ├── __pycache__/
+│   │   │   ├── __init__.cpython-311.pyc (0.1 KB)
+│   │   │   ├── settings.cpython-311.pyc (2.9 KB)
+│   │   │   ├── urls.cpython-311.pyc (1.0 KB)
+│   │   │   └── wsgi.cpython-311.pyc (0.6 KB)
+│   │   ├── __init__.py (0.0 KB)
+│   │   ├── asgi.py (0.4 KB)
+│   │   ├── settings.py (2.6 KB)
+│   │   ├── urls.py (0.8 KB)
+│   │   └── wsgi.py (0.4 KB)
+│   ├── Dockerfile (0.4 KB)
+│   ├── manage.py (0.7 KB)
+│   ├── .env 
+│   └── requirements.txt (0.2 KB)
+├── docker-compose.yml (4.5 KB)
+├── package-lock.json (0.1 KB)
+├── README.md (0.0 KB)
+├── .env.example (0.0 KB)
+├── .gitignore (0.0 KB)
+└── requirements.txt (0.0 KB)
