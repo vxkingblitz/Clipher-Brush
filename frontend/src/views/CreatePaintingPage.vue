@@ -5,7 +5,7 @@
         <h1 v-if="step == 3">Создание шедевра!</h1>
         <h1 v-if="step == 4">Все готово!</h1>
 
-        <div class="createContent" v-if="step == 1" @click="openFileInput">
+        <div id="pageView" class="createContent" v-if="step == 1" @click="openFileInput">
             <input 
                 ref="fileInput" 
                 type="file" 
@@ -29,7 +29,7 @@
         </div>
 
 
-        <div class="createContent" v-if="step == 2" style="height: 70vh;">
+        <div id="pageView" class="createContent" v-if="step == 2" style="height: 70vh;">
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <div class="actions">
                 <InputField
@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <div class="createContent" v-if="step == 3" style="height: 70vh;">
+        <div id="pageView" class="createContent" v-if="step == 3" style="height: 70vh;">
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <h4>Генерация изображения</h4>
             <div class="loadingStatusWrapper">

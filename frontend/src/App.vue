@@ -9,6 +9,23 @@
 </script>
 
 <style>
+
+*::-webkit-scrollbar,
+html *::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+*::-webkit-scrollbar-track,
+html *::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb,
+html *::-webkit-scrollbar-thumb {
+  background-color: #E5E8EB;
+  border-radius: 5px;
+  border: 3px solid transparent;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -33,7 +50,7 @@ h1{
   text-align: center;
   color: var(--color-black);
   font-size: 30px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 30px;
 }
 #pageView{

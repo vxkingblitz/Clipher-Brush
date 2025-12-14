@@ -12,24 +12,78 @@
         @tab-change="val => setTab(val)"
     />
 
-    <section class="feed-content">
-        <PaintingCard v-for="i in 10" :key="i.id"/>
-    </section>
+    <div v-if="menuTab == 'favourites'">
+        <section class="feed-content" v-if="loadingFavourites">
+            <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
+        </section>
+
+        <div class="messageBox" v-if="favouritePaintingsList.length == 0 && !loadingFavourites">
+            <img src="../assets/img/book.png" alt="empty-feed">
+            <span>Пока ничего нет :(</span>
+        </div>
+
+        <section class="feed-content" v-if="favouritePaintingsList.length > 0 && !loadingFavourites">
+            <PaintingCard v-for="i in 10" :key="i.id"/>
+        </section>
+    </div>
+
+    <div v-if="menuTab == 'my_works'">
+        <section class="feed-content" v-if="loadingMy">
+            <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
+        </section>
+
+        <div class="messageBox" v-if="myPaintingsList.length == 0 && !loadingMy">
+            <img src="../assets/img/book.png" alt="empty-feed">
+            <span>Пока ничего нет :(</span>
+        </div>
+
+        <section class="feed-content" v-if="myPaintingsList.length > 0 && !loadingMy">
+            <PaintingCard v-for="i in 10" :key="i.id"/>
+        </section>
+    </div>
+    
   </div>
 </template>
 
 <script>
+import { useProfileStore } from '../stores/profileStore'
+import { mapStores } from 'pinia'
+
 export default {
     data(){
         return{
             menuTab: 'favourites',
+            loadingFavourites: false,
+            loadingMy: false,
         }
+    },
+    mounted() {
+        this.loadingFavourites = true;
+        this.loadingMy = true;
+        setTimeout(() => {
+            this.profileStore.getFavouritePaintingsList()
+            this.loadingFavourites = false;
+        }, 1000);
+
+        setTimeout(() => {
+            this.profileStore.getMyPaintingsList()
+            this.loadingMy = false;
+        }, 1000);
     },
     methods:{
         setTab(tab) {
             this.$router.push({ name: 'Profile', params: { tab } })
         },
-    }
+    },
+    computed: {
+        ...mapStores(useProfileStore),
+        favouritePaintingsList(){
+            return this.profileStore.favouritePaintingsList;
+        },
+        myPaintingsList(){
+            return this.profileStore.myPaintingsList;
+        },
+    },
 }
 </script>
 
