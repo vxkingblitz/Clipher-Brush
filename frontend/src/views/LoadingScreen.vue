@@ -24,7 +24,7 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../stores/authStore'
 
 export default {
   name: 'LoadingScreen',

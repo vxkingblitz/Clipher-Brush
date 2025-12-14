@@ -1,35 +1,73 @@
-import axios from 'axios';
+"use strict";
+import axios from "axios";
+import { useAuthStore } from "../stores/authStore.js";
 
-const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://your-axiosInstance.com/api',
-    timeout: 10000,
-});
+let apiURL = 'https://api.soldium.ru/api/';
+apiURL = apiURL.replace(/"/g, "").trim();
+if (!apiURL.endsWith("/")) apiURL += "/";
+const config = {
+  baseURL: apiURL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
+  crossDomain: true,
+  xsrfCookieName: "csrftoken",
+  xsrfHeaderName: "X-CSRFToken",
+};
 
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('tg_token');
-        if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+const _axios = axios.create(config);
+
+_axios.interceptors.request.use(
+  (config) => {
+    const authStore = useAuthStore();
+    if (authStore.access_token) {
+      config.headers["Authorization"] = `Bearer ${authStore.access_token}`;
     }
+    config.withCredentials = true;
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
-axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        if (error.response?.status === 401) {
-        localStorage.removeItem('tg_token');
-        localStorage.removeItem('tg_user');
-        window.location.reload();
+_axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const authStore = useAuthStore();
+
+    if (error.response && error.response.status === 502) {
+      try {
+        await authStore.refresh();
+        const newAccessToken = authStore.access_token;
+        if (newAccessToken) {
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
         }
-        return Promise.reject(error);
+        if (!error.config._retry) {
+          error.config._retry = true;
+          return _axios.request(error.config);
+        }
+      } catch (refreshError) {
+        console.error("Refresh token expired, logging out...");
+        authStore.logout();
+      }
     }
+
+    if (error.response && error.response.status === 405) {
+      console.error("Method Not Allowed - проверь endpoint и метод запроса");
+    }
+
+    return Promise.reject(error);
+  }
 );
 
-export default axiosInstance;
+const Plugin = {
+  install(app) {
+    app.config.globalProperties.$axios = _axios;
+    app.config.globalProperties.axios = _axios;
+    app.provide("axios", _axios);
+  },
+};
+
+export const axiosInstance = _axios;
+export default Plugin;
