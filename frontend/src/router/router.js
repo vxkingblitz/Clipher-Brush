@@ -8,10 +8,21 @@ const routes = [
     component: () => import('../views/LoadingScreen.vue')
   },
   {
-    path: '/home',
-    name: 'HomePage',
-    component: () => import('../views/HomePage.vue'),
-    meta: { requiresAuth: true }
+    path: '/feed/:tab?',
+    name: 'Feed',
+    component: () => import('../views/FeedPage.vue'),
+    props: true
+  },
+  {
+    path: '/createNew',
+    name: 'CreatePainting',
+    component: () => import('../views/CreatePaintingPage.vue'),
+  },
+  {
+    path: '/profile/:tab?',
+    name: 'Profile',
+    component: () => import('../views/ProfilePage.vue'),
+    props: true
   },
 ]
 
@@ -20,14 +31,14 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  const auth = useAuthStore()
+// router.beforeEach((to, from, next) => {
+//   const auth = useAuthStore()
   
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next('/')
-  } else {
-    next()
-  }
-})
+//   if (to.meta.requiresAuth && !auth.isAuthenticated) {
+//     next('/')
+//   } else {
+//     next()
+//   }
+// })
 
 export default router

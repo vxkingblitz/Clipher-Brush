@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { axiosInstance } from '../plugins/axios'
 import { useAuthStore } from './authStore'
 import { useAlertsStore } from './alertsStore'
-import router from '../router'
 
 export const useRequestsStore = defineStore('requests', {
     actions: {
