@@ -5,24 +5,26 @@ from common.exceptions import ApiException
 
 
 class ProxyView:
-
     @staticmethod
-    def forward(request, service_name: str, path: str):
-        if service_name not in SERVICES:
+    def forward(request, service, path):
+        if service not in SERVICES:
             raise ApiException(
-                title="Service error",
-                description="Service not found",
-                status=404
+                "Service error",
+                "Service not found",
+                404
             )
 
-        service_url = f"{SERVICES[service_name]}/{path}"
+        service_url = f"{SERVICES[service]}/{path}"
 
         headers = {
-            key: value for key, value in request.headers.items()
+            key: value
+            for key, value in request.headers.items()
             if key.lower() != "host"
         }
 
-        headers["X-User-Id"] = str(getattr(request, "user_id", ""))
+        # пробрасываем user_id дальше
+        if hasattr(request, "user_id"):
+            headers["X-User-Id"] = str(request.user_id)
 
         try:
             response = requests.request(
@@ -35,27 +37,13 @@ class ProxyView:
             )
         except requests.RequestException:
             raise ApiException(
-                title="Service unavailable",
-                description=f"{service_name} is unavailable",
-                status=503
+                "Service unavailable",
+                f"{service} service unavailable",
+                503
             )
-
-        if response.status_code >= 400:
-            try:
-                return HttpResponse(
-                    response.content,
-                    status=response.status_code,
-                    content_type="application/json"
-                )
-            except Exception:
-                raise ApiException(
-                    title="Service error",
-                    description="Invalid response from service",
-                    status=500
-                )
 
         return HttpResponse(
             response.content,
             status=response.status_code,
-            content_type=response.headers.get("Content-Type")
+            content_type=response.headers.get("Content-Type", "application/json")
         )

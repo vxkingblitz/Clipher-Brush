@@ -1,0 +1,82 @@
+from paintings.services.ml_client import MlClient
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from paintings.models import Painting
+from services.painting_service import PaintingService
+from .serializers import PaintingCreateSerializer, PaintingResponseSerializer
+from paintings.models import Painting
+from paintings.serializers import PublicPaintingSerializer
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from common.exceptions import ApiException
+
+
+class PaintingCreateView(APIView):
+    def post(self, request):
+        user_id = request.headers.get("X-User-Id")
+
+        serializer = PaintingCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        painting = PaintingService.create_painting(
+            user_id=user_id,
+            validated_data=serializer.validated_data
+        )
+
+        try:
+            palette = request.data.get("palette")
+            result = MlClient.process_painting(painting, palette)
+
+            painting.painting_numbered = result["numbered_image"]
+            painting.painting_colored = result["colored_image"]
+            painting.status = "completed"
+            painting.save()
+
+        except Exception:
+            painting.status = "failed"
+            painting.save()
+
+        return Response(
+            PaintingResponseSerializer(painting).data,
+            status=201
+        )
+
+
+class PublicPaintingFeedView(ListAPIView):
+    serializer_class = PublicPaintingSerializer
+
+    def get_queryset(self):
+        return (
+            Painting.objects
+            .filter(is_public=True, status="completed")
+            .order_by("-generated_at")
+        )
+
+
+class PublicPaintingDetailView(RetrieveAPIView):
+    serializer_class = PublicPaintingSerializer
+    lookup_field = "painting_id"
+
+    def get_queryset(self):
+        return Painting.objects.filter(is_public=True)
+    
+
+class PublishPaintingView(APIView):
+    def post(self, request, painting_id):
+        user_id = request.headers.get("X-User-Id")
+
+        try:
+            painting = Painting.objects.get(
+                painting_id=painting_id,
+                user_id=user_id
+            )
+        except Painting.DoesNotExist:
+            raise ApiException(
+                "Not found",
+                "Painting not found or access denied",
+                404
+            )
+
+        painting.is_public = True
+        painting.save()
+
+        return Response({"status": "published"})

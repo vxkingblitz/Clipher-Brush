@@ -1,5 +1,4 @@
 Django>=4.2
 djangorestframework
-requests
-PyJWT
+psycopg2-binary
 python-dotenv
