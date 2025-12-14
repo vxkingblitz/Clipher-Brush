@@ -33,7 +33,7 @@
     </div>
 
     <section class="feed-content" v-if="paintings.length > 0 && !loadingFeed">
-        <PaintingCard v-for="i in 10" :key="i.id"/>
+        <PaintingCard id="pageView" v-for="i in 10" :key="i.id"/>
     </section>
   </div>
 </template>
