@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <RouterView/>
+    <RouterView style="padding-top: 10%;"/>
     <NavBar/>
   </div>
 </template>
@@ -29,22 +29,16 @@ export default {
 </script>
 
 <style>
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
 
-*::-webkit-scrollbar,
-html *::-webkit-scrollbar {
-  height: 12px;
-  width: 12px;
-}
-*::-webkit-scrollbar-track,
-html *::-webkit-scrollbar-track {
-  background: transparent;
-}
-*::-webkit-scrollbar-thumb,
-html *::-webkit-scrollbar-thumb {
-  background-color: #E5E8EB;
-  border-radius: 5px;
-  border: 3px solid transparent;
-}
 
 * {
   margin: 0;
