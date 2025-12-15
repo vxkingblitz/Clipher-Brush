@@ -7,62 +7,57 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-
-  auth_service:
-    build: ./auth_service
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./auth_service:/app
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-    ports:
-      - "8001:8000"
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
 
   gateway:
     build: ./api_gateway
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./api_gateway:/app
-    env_file:
-      - .env
+    env_file: .env
     depends_on:
       - auth_service
+      - painting_service
+      - catalog_service
     ports:
       - "8000:8000"
-    
+    restart: always
+
+  auth_service:
+    build: ./auth_service
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file: .env
+    depends_on:
+      - postgres
+    restart: always
+
   painting_service:
     build: ./painting_service
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./painting_service:/app
-    env_file:
-      - .env
+    env_file: .env
     depends_on:
       - postgres
-    ports:
-      - "8002:8000"
-
-  image_processing_service:
-    build: ./image_processing_service
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./image_processing_service:/app
-    ports:
-      - "8003:8000"
+      - image_processing_service
+    restart: always
 
   catalog_service:
     build: ./catalog_service
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./catalog_service:/app
-    env_file:
-      - .env
+    env_file: .env
     depends_on:
       - postgres
-    ports:
-      - "8004:8000"
+    restart: always
 
+  image_processing_service:
+    build: ./image_processing_service
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    restart: always
+
+volumes:
+  postgres_data:
