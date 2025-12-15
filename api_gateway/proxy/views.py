@@ -1,20 +1,23 @@
 import requests
 from django.http import HttpResponse
-from proxy.services import SERVICES
-from common.exceptions import ApiException
+
+
+SERVICE_URLS = {
+    "auth": "http://auth-service:8000",
+    "paintings": "http://painting-service:8000",
+    "catalog": "http://catalog-service:8000",
+}
 
 
 class ProxyView:
+
     @staticmethod
     def forward(request, service, path):
-        if service not in SERVICES:
-            raise ApiException(
-                "Service error",
-                "Service not found",
-                404
-            )
+        base_url = SERVICE_URLS.get(service)
+        if not base_url:
+            return HttpResponse(status=404)
 
-        service_url = f"{SERVICES[service]}/{path}"
+        target_url = f"{base_url}/{service}/{path}"
 
         headers = {
             key: value
@@ -22,28 +25,16 @@ class ProxyView:
             if key.lower() != "host"
         }
 
-        # пробрасываем user_id дальше
-        if hasattr(request, "user_id"):
-            headers["X-User-Id"] = str(request.user_id)
-
-        try:
-            response = requests.request(
-                method=request.method,
-                url=service_url,
-                headers=headers,
-                params=request.GET,
-                data=request.body,
-                timeout=30
-            )
-        except requests.RequestException:
-            raise ApiException(
-                "Service unavailable",
-                f"{service} service unavailable",
-                503
-            )
+        response = requests.request(
+            method=request.method,
+            url=target_url,
+            headers=headers,
+            data=request.body,
+            params=request.GET,
+        )
 
         return HttpResponse(
             response.content,
             status=response.status_code,
-            content_type=response.headers.get("Content-Type", "application/json")
+            content_type=response.headers.get("Content-Type"),
         )

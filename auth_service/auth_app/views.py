@@ -1,11 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from services.user_service import UserService
 from services.jwt_service import JwtService
 from common.exceptions import ApiException
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
+
+@method_decorator(csrf_exempt, name="dispatch")
 class TelegramAuthView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         init_data = request.data.get("init_data")
         if not init_data:
