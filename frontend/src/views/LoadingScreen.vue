@@ -1,24 +1,6 @@
 <template>
   <div class="loading-screen">
-    <div class="loading-content">
-      <div v-if="auth?.isLoading">
-        <p>Проверка авторизации...</p>
-      </div>
-      
-      <div v-else-if="!auth?.isAuthenticated">
-        <button 
-          @click="handleLogin" 
-          :disabled="auth?.isLoading"
-          class="auth-button"
-        >
-          {{ auth?.isLoading ? 'Авторизация...' : 'Авторизоваться' }}
-        </button>
-      </div>
-
-      <div v-else>
-        лол
-      </div>
-    </div>
+    
   </div>
 </template>
 

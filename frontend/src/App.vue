@@ -6,6 +6,26 @@
 </template>
 
 <script>
+import { onMounted } from 'vue';
+import { useAuthStore } from './stores/authStore';
+
+export default {
+  name: 'App',
+  setup() {
+    const authStore = useAuthStore();
+
+    onMounted(async () => {
+      // Инициализация Telegram WebApp
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+      }
+
+      // Авторизация через Telegram мини-приложение
+      await authStore.initialize();
+    });
+  }
+}
 </script>
 
 <style>

@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore.js";
 
-let apiURL = 'https://api.soldium.ru/api/';
+let apiURL = 'https://cipherbrush.ru/api/';
 apiURL = apiURL.replace(/"/g, "").trim();
 if (!apiURL.endsWith("/")) apiURL += "/";
 const config = {
@@ -22,8 +22,8 @@ const _axios = axios.create(config);
 _axios.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore();
-    if (authStore.access_token) {
-      config.headers["Authorization"] = `Bearer ${authStore.access_token}`;
+    if (authStore.token) {
+      config.headers["Authorization"] = `Bearer ${authStore.token}`;
     }
     config.withCredentials = true;
     return config;
@@ -36,19 +36,25 @@ _axios.interceptors.response.use(
   async (error) => {
     const authStore = useAuthStore();
 
-    if (error.response && error.response.status === 502) {
+    if (error.response && error.response.status === 401) {
       try {
-        await authStore.refresh();
-        const newAccessToken = authStore.access_token;
-        if (newAccessToken) {
-          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        }
-        if (!error.config._retry) {
-          error.config._retry = true;
-          return _axios.request(error.config);
+        // Если есть метод refresh в store, используем его
+        if (authStore.refresh) {
+          await authStore.refresh();
+          const newToken = authStore.token;
+          if (newToken) {
+            error.config.headers["Authorization"] = `Bearer ${newToken}`;
+          }
+          if (!error.config._retry) {
+            error.config._retry = true;
+            return _axios.request(error.config);
+          }
+        } else {
+          // Если нет refresh метода, просто разлогиниваем
+          authStore.logout();
         }
       } catch (refreshError) {
-        console.error("Refresh token expired, logging out...");
+        console.error("Token expired, logging out...");
         authStore.logout();
       }
     }

@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    depends_on:
+      - nginx-proxy
+    command: certonly --webroot --webroot-path=/var/www/certbot --email artem@yugaev.ru --agree-tos --no-eff-email -d cipherbrush.ru -d www.cipherbrush.ru
+    restart: unless-stopped
+    networks:
+      - app-network
+  certbot-renew:
+    image: certbot/certbot:latest
+    container_name: certbot-renew
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    command: renew --quiet
+    restart: unless-stopped
+    networks:
+      - app-network
   postgres:
     image: postgres:15
     environment:
