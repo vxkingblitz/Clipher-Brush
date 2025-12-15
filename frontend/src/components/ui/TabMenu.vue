@@ -59,6 +59,7 @@ export default {
     
     methods: {
         setActiveTab(tabId) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             this.activeTab = tabId
             this.$emit('update:modelValue', tabId)
             this.$emit('tab-change', tabId)

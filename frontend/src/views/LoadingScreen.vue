@@ -20,7 +20,7 @@ export default {
     async handleLogin() {
       try {
         await this.login()
-        this.$router.push('/feed')
+        this.$router.push('/feed/all')
       } catch (error) {
         alert('Ошибка авторизации: ' + error.message)
       }
@@ -31,7 +31,7 @@ export default {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          this.$router.push('/feed')
+          this.$router.push('/feed/all')
         }
       }
     }
@@ -40,7 +40,7 @@ export default {
     if (!this.isAuthenticated && window.Telegram?.WebApp?.initDataUnsafe?.user) {
       try {
         await this.login()
-        this.$router.push('/feed')
+        this.$router.push('/feed/all')
       } catch (error) {
         console.error('Auto-login failed:', error)
       }
