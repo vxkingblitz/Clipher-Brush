@@ -1,12 +1,12 @@
 from paintings.services.ml_client import MlClient
+from paintings.services.painting_service import PaintingService
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from paintings.models import Painting
-from services.painting_service import PaintingService
-from .serializers import PaintingCreateSerializer, PaintingResponseSerializer
-from paintings.models import Painting
-from paintings.serializers import PublicPaintingSerializer
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from paintings.models import Painting
+from paintings.serializers import PaintingCreateSerializer, PaintingResponseSerializer
+from paintings.serializers import PublicPaintingSerializer
+from paintings.models import Painting
 from common.exceptions import ApiException
 
 
