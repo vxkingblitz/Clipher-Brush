@@ -80,3 +80,57 @@ class PublishPaintingView(APIView):
         painting.save()
 
         return Response({"status": "published"})
+
+
+class SavePaintingView(APIView):
+    def post(self, request, painting_id):
+        user_id = request.headers.get("X-User-id")
+
+        try:
+            painting = Painting.objects.get(
+                painting_id=painting_id,
+                user_id=user_id
+            )
+        except Painting.DoesNotExist:
+            raise ApiException(
+                "Not found",
+                "Painting not found",
+                404
+            )
+        
+        painting.is_saved = not painting.is_saved
+        painting.save()
+
+        return Response({
+            "painting_od": painting.painting_id,
+            "is_saved": painting.is_saved
+        })
+
+
+class MyPaintgsListView(ListAPIView):
+    serializer_class = PaintingResponseSerializer
+
+    def get_gueryset(self):
+        user_id = self.request.headers.get("X-User-id")
+        return Painting.objects.filter(user_id=user_id).order_by("-generated_at")
+    
+
+class PaintingDetailView(APIView):
+    def get(self, requet, painting_id):
+        user_id = requet.headers.get("X-User-id")
+
+        try:
+            painting = Painting.objects.get(
+                painting_id=painting_id,
+                user_id=user_id
+            )
+        except Painting.DoesNotExist:
+            raise ApiException(
+                "Not found",
+                "Painting not found",
+                404
+            )
+        
+        return Response(
+            PaintingResponseSerializer(painting).data
+        )

@@ -4,6 +4,9 @@ from .views import (
     PublicPaintingFeedView,
     PublicPaintingDetailView,
     PublishPaintingView,
+    SavePaintingView,
+    MyPaintgsListView,
+    PaintingDetailView,
 )
 
 urlpatterns = [
@@ -11,4 +14,7 @@ urlpatterns = [
     path("feed/", PublicPaintingFeedView.as_view()),
     path("<int:painting_id>/", PublicPaintingDetailView.as_view()),
     path("<int:painting_id>/publish/", PublishPaintingView.as_view()),
+    path("<int:painting_id>/save/", SavePaintingView.as_view()),
+    path("my/", MyPaintgsListView.as_view()),
+    path('<int:painting_id>/detail/', PaintingDetailView.as_view()),
 ]
