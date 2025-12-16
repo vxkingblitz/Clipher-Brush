@@ -1,11 +1,11 @@
 <template>
     <div id="pageView" class="createWrapper">
-        <h1 v-if="step == 1">Добро пожаловать в <br> создание волшебства!</h1>
-        <h1 v-if="step == 2">Еще чуть-чуть :)</h1>
-        <h1 v-if="step == 3">Создание шедевра!</h1>
-        <h1 v-if="step == 4">Все готово!</h1>
+        <h1 style="margin-bottom: 40px;" v-if="step == 1">Добро пожаловать в <br> создание волшебства!</h1>
+        <h1 style="margin-bottom: 40px;" v-if="step == 2">Еще чуть-чуть :)</h1>
+        <h1 style="margin-bottom: 40px;" v-if="step == 3">Создание шедевра!</h1>
+        <h1 style="margin-bottom: 40px;" v-if="step == 4">Все готово!</h1>
 
-        <div id="pageView" class="createContent" style="height: 60%;" v-if="step == 1" @click="openFileInput()">
+        <div id="pageView" class="createContent" v-if="step == 1" @click="openFileInput()">
             <input 
                 ref="fileInput" 
                 type="file" 
@@ -19,7 +19,7 @@
                 <p>Добавь свое изоюражение сюда и начнется магия</p>
                 <span>jpg, png</span>
             </div>
-            <div v-else style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center; margin-top: 30px;">
+            <div v-else style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center;">
                 <img :src="photoPreview" alt="photo_for_drawing" class="imagePreview">
                 <div class="actions">
                     <ButtonComponent :variant="1" :label="'Далее'" @click.stop="handleHapticFeedback(); step = 2" :isLoading="false"/>
@@ -29,7 +29,7 @@
         </div>
 
 
-        <div id="pageView" class="createContent" v-if="step == 2" style="height: 70vh;">
+        <div id="pageView" class="createContent" v-if="step == 2">
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <div class="actions">
                 <InputField
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <div id="pageView" class="createContent" v-if="step == 3" style="height: 70vh;">
+        <div id="pageView" class="createContent" v-if="step == 3">
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <h4>Генерация изображения</h4>
             <div class="loadingStatusWrapper">

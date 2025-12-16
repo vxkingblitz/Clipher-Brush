@@ -12,53 +12,56 @@
         {{ hasValue ? displayValue : placeholderdata }}
       </div>
       
-      <div 
-        :class="{ 'select-hide': !open, items: open }" 
-        ref="dropdown" 
-        :style="dropdownUp ? { bottom: '120%' } : {}"
-      >
-        <div class="search" v-if="searchable" @click="open = true">
-          <InputField 
-            :label="''" 
-            :type="'search'" 
-            :placeholder="'Поиск'" 
-            :modelValue="searchTerm"
-            @update:modelValue="searchTerm = $event"
-          />
-        </div>
-        
-        <div class="custom-input" v-if="showCustomInput">
-          <InputField 
-            :label="''" 
-            :type="'text'" 
-            :placeholder="''" 
-            :modelValue="valueCustomInput"
-            @update:modelValue="valueCustomInput = $event"
-          />
-          <IconButton @click="handleCustomInputAccept" :icon="'check.svg'" :color="'var(--color-accent)'"/>
-        </div>
-        
+      <transition name="slide-up">
         <div 
-          v-if="customValue && !showCustomInput" 
-          @click="showCustomInput = true" 
-          class="custom-value-button"
+          v-if="open"
+          :class="{ items: true, dropdownUp: dropdownUp }" 
+          ref="dropdown" 
+          :style="dropdownUp ? { bottom: '120%' } : {}"
         >
-          Указать свое значение
+          <div class="search" v-if="searchable" @click="open = true">
+            <InputField 
+              :label="''" 
+              :type="'search'" 
+              :placeholder="'Поиск'" 
+              :modelValue="searchTerm"
+              @update:modelValue="searchTerm = $event"
+            />
+          </div>
+          
+          <div class="custom-input" v-if="showCustomInput">
+            <InputField 
+              :label="''" 
+              :type="'text'" 
+              :placeholder="''" 
+              :modelValue="valueCustomInput"
+              @update:modelValue="valueCustomInput = $event"
+            />
+            <IconButton @click="handleCustomInputAccept" :icon="'check.svg'" :color="'var(--color-accent)'"/>
+          </div>
+          
+          <div 
+            v-if="customValue && !showCustomInput" 
+            @click="showCustomInput = true" 
+            class="custom-value-button"
+          >
+            Указать свое значение
+          </div>
+          
+          <div style="padding: 0 15px;" v-if="!filteredOptions.length">Здесь пока ничего нет</div>
+          
+          <div @click="handleOptionClick('Все')" v-if="selectAll">Все</div>
+          
+          <div
+            v-for="option in filteredOptions"
+            :key="getOptionKey(option)"
+            @click="handleOptionClick(option)"
+            class="option-item"
+          >
+            <span v-html="highlightMatch(getOptionName(option))"></span>
+          </div>
         </div>
-        
-        <div style="padding: 0 15px;" v-if="!filteredOptions.length">Здесь пока ничего нет</div>
-        
-        <div @click="handleOptionClick('Все')" v-if="selectAll">Все</div>
-        
-        <div
-          v-for="option in filteredOptions"
-          :key="getOptionKey(option)"
-          @click="handleOptionClick(option)"
-          class="option-item"
-        >
-          <span v-html="highlightMatch(getOptionName(option))"></span>
-        </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -95,7 +98,7 @@ export default {
       default: false
     }
   },
-  emits: ['update:modelValue'], // Добавляем emit для v-model
+  emits: ['update:modelValue'],
   data() {
     return {
       open: false,
@@ -103,7 +106,7 @@ export default {
       dropdownUp: false,
       valueCustomInput: '',
       showCustomInput: false,
-      internalValue: this.modelValue // Используем modelValue
+      internalValue: this.modelValue
     };
   },
   computed: {
@@ -127,8 +130,6 @@ export default {
     },
 
     hasValue() {
-      // Вариант: если internalValue == null, или пустая строка - нет значения
-      // Если internalValue - объект, но ни id/имя нет - нет значения
       if (
         this.internalValue === null ||
         this.internalValue === undefined ||
@@ -345,7 +346,21 @@ export default {
   padding-bottom: 100px;
   z-index: 20;
   filter: drop-shadow(0 0 10px rgb(227, 227, 227));
-  transition: all .2s ease;
+  /* transition (убран для анимации, теперь с помощью transition компонента) */
+}
+
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: transform 0.33s cubic-bezier(0.38, 0.12, 0.3, 1), opacity 0.33s cubic-bezier(0.38, 0.12, 0.3, 1);
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.slide-up-enter-to,
+.slide-up-leave-from {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .option-item {
