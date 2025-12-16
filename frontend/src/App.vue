@@ -23,15 +23,15 @@ export default {
         window.Telegram.WebApp.expand();
       }
 
+      await authStore.initialize();
+
       setTimeout(() => {
-        authStore.initialize();
+        if (authStore.user) {
+          isAppLoaded.value = true;
+          this.$router.push('feed/all')
+        }
       }, 3000);
       
-
-      if (authStore.user) {
-        isAppLoaded.value = true;
-        this.$router.push('feed/all')
-      }
     });
 
     return { isAppLoaded };
