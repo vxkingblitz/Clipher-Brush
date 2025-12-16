@@ -7,6 +7,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
 
 export default {
@@ -14,6 +15,7 @@ export default {
   setup() {
     const authStore = useAuthStore();
     const isAppLoaded = ref(false);
+    const router = useRouter();
 
     onMounted(async () => {
       isAppLoaded.value = false;
@@ -28,7 +30,7 @@ export default {
       setTimeout(() => {
         if (authStore.user) {
           isAppLoaded.value = true;
-          $router.push('feed/all')
+          router.push({ name: 'Feed', params: { tab: 'all' } });
         }
       }, 3000);
       
