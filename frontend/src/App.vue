@@ -28,7 +28,7 @@ export default {
       setTimeout(() => {
         if (authStore.user) {
           isAppLoaded.value = true;
-          this.$router.push('feed/all')
+          $router.push('feed/all')
         }
       }, 3000);
       
