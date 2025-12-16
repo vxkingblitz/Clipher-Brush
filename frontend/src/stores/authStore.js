@@ -22,8 +22,6 @@ export const useAuthStore = defineStore('auth', {
                     throw new Error('Telegram WebApp not available');
                 }
 
-                const initData = tg.WebAppUser;
-
                 // if (!initData) {
                 //     throw new Error('Telegram initData not available');
                 // }
@@ -40,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
                 
                 // return response.data;
 
-                this.user = initData
+                this.user = tg.initDataUnsafe.user
                 return this.user
             } catch (error) {
                 console.error('Login error:', error);
