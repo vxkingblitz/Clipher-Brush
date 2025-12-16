@@ -13,19 +13,6 @@ export default {
   computed: {
     ...mapState(useAuthStore, ['isLoading', 'isAuthenticated'])
   },
-  methods: {
-
-    ...mapActions(useAuthStore, ['login']),
-    
-    async handleLogin() {
-      try {
-        await this.login()
-        this.$router.push('/feed/all')
-      } catch (error) {
-        alert('Ошибка авторизации: ' + error.message)
-      }
-    }
-  },
   watch: {
     isAuthenticated: {
       immediate: true,
@@ -36,16 +23,6 @@ export default {
       }
     }
   },
-  async mounted() {
-    if (!this.isAuthenticated && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-      try {
-        await this.login()
-        this.$router.push('/feed/all')
-      } catch (error) {
-        console.error('Auto-login failed:', error)
-      }
-    }
-  }
 }
 </script>
 

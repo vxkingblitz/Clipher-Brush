@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <RouterView style="padding-top: var(--tg-content-safe-area-inset-top);"/>
+    <RouterView style="padding-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top));"/>
     <NavBar/>
   </div>
 </template>
