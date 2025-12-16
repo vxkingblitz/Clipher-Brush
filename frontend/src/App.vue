@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     
-    <RouterView style="margin-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 16px);"/>
+    <RouterView/>
     <NavBar v-if="isAppLoaded"/>
   </div>
 </template>
@@ -97,11 +97,11 @@ h1{
 }
 @keyframes show {
     0% {
-        margin-top: 26px;
+        margin-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 26px);
         opacity: 0;
     }
     100% {
-        margin-top: 16px;
+        margin-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 16px);
         opacity: 1;
     }
 }
