@@ -250,6 +250,7 @@ export default {
   font-family: 'Jost';
 }
 .select-wrapper{
+  position: relative;
   display: flex;
   flex-direction: column;
 }
@@ -330,38 +331,7 @@ export default {
   transition: .3s ease all;
 } */
 
-.items {
-  opacity: 1;
-  max-height: 80svh;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  color: var(--color-black);
-  border-radius: 32px 32px 0 0;
-  border: 1px solid var(--color-main);
-  position: fixed;
-  background-color: var(--color-white);
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding-bottom: 100px;
-  z-index: 20;
-  filter: drop-shadow(0 0 10px rgb(227, 227, 227));
-  /* transition (убран для анимации, теперь с помощью transition компонента) */
-}
 
-.slide-up-enter-active, .slide-up-leave-active {
-  transition: transform 0.33s cubic-bezier(0.38, 0.12, 0.3, 1), opacity 0.33s cubic-bezier(0.38, 0.12, 0.3, 1);
-}
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
-}
-.slide-up-enter-to,
-.slide-up-leave-from {
-  transform: translateY(0);
-  opacity: 1;
-}
 
 .option-item {
   color: var(--color-dark-grey);
@@ -396,5 +366,62 @@ export default {
   filter: drop-shadow(0 0 10px rgb(227, 227, 227));
   transition: all .2s ease;
   visibility: hidden;
+}
+
+.items {
+  opacity: 1;
+  max-height: 170px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  margin-top: 20px;
+  color: var(--color-black);
+  border-radius: 32px;
+  border: 1px solid var(--color-main);
+  position: absolute;
+  background-color: var(--color-white);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  filter: drop-shadow(0 0 10px rgb(227, 227, 227));
+  width: 100%;
+}
+
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: transform 0.33s cubic-bezier(0.38, 0.12, 0.3, 1), opacity 0.33s cubic-bezier(0.38, 0.12, 0.3, 1);
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.slide-up-enter-to,
+.slide-up-leave-from {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+@media (max-width: 768px){
+  .select-wrapper{
+    position: inherit;
+    display: flex;
+    flex-direction: column;
+  }
+  .items {
+    opacity: 1;
+    max-height: 80svh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    color: var(--color-black);
+    border-radius: 32px 32px 0 0;
+    border: 1px solid var(--color-main);
+    position: fixed;
+    background-color: var(--color-white);
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding-bottom: 100px;
+    z-index: 20;
+    filter: drop-shadow(0 0 10px rgb(227, 227, 227));
+  }
 }
 </style>

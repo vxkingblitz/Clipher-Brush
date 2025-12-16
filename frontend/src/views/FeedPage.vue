@@ -75,14 +75,23 @@ export default {
 </script>
 
 <style scoped>
-.feed-content{
+.feed-content {
+    margin-bottom: 110px;
     padding: 0 6px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 1fr;
-    grid-column-gap: 6px;
-    grid-row-gap: 6px;
-    margin-bottom: 110px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 6px;
+}
+@media (max-width: 768px){
+    .feed-content{
+        padding: 0 6px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 1fr;
+        grid-column-gap: 6px;
+        grid-row-gap: 6px;
+        margin-bottom: 110px;
+    }
 }
 
 </style>
