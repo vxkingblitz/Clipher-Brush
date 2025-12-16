@@ -8,10 +8,6 @@ export const useAuthStore = defineStore('auth', {
         isLoading: false
     }),
 
-    getters: {
-        isAuthenticated: (state) => !!state.token
-    },
-
     actions: {
         async login() {
             try {
@@ -48,23 +44,9 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        restoreSession() {
-            const savedUser = localStorage.getItem('tg_user');
-            if (savedUser) {
-                this.user = JSON.parse(savedUser);
-            }
-        },
-
-        logout() {
-            this.token = null;
-            this.user = null;
-            localStorage.removeItem('tg_token');
-            localStorage.removeItem('tg_user');
-        },
-
         async initialize() {
             try {
-                await thislogin()
+                await this.login()
             } catch (error) {
                 throw new Error(error);
             }

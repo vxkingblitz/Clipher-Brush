@@ -18,10 +18,6 @@ export default {
     onMounted(async () => {
       isAppLoaded.value = false;
 
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      }
-
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
