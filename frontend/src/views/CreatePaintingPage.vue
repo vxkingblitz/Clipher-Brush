@@ -22,8 +22,8 @@
             <div v-else style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center; margin-top: 30px;">
                 <img :src="photoPreview" alt="photo_for_drawing" class="imagePreview">
                 <div class="actions">
-                    <ButtonComponent :variant="1" :label="'Далее'" @click.stop="step = 2" :isLoading="false"/>
-                    <ButtonComponent :variant="3" :label="'Изменить изображение'" @click.stop="openFileInput" :isLoading="false"/>
+                    <ButtonComponent :variant="1" :label="'Далее'" @click.stop="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); step = 2" :isLoading="false"/>
+                    <ButtonComponent :variant="3" :label="'Изменить изображение'" @click.stop="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); openFileInput" :isLoading="false"/>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     :searchable="false"
                     :placeholderdata="'Выберите период'"
                 />
-                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="step = 3" :isLoading="false"/>
+                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); step = 3" :isLoading="false"/>
             </div>
         </div>
 

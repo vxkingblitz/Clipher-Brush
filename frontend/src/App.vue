@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <RouterView style="padding-top: 10%;"/>
+    <RouterView style="padding-top: var(--tg-content-safe-area-inset-top);"/>
     <NavBar/>
   </div>
 </template>
@@ -16,6 +16,8 @@ export default {
 
     onMounted(async () => {
       // Инициализация Telegram WebApp
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
@@ -37,6 +39,17 @@ export default {
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
+  /* Скрыть все скроллбары для всех элементов */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
+}
+
+/* Запретить zoom по даблтапу на мобильных */
+html, body {
+  touch-action: manipulation;
 }
 
 
