@@ -97,11 +97,11 @@ h1{
 }
 @keyframes show {
     0% {
-        margin-top: 10px;
+        margin-top: 26px;
         opacity: 0;
     }
     100% {
-        margin-top: 0;
+        margin-top: 16px;
         opacity: 1;
     }
 }
