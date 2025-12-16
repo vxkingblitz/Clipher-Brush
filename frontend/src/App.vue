@@ -1,31 +1,40 @@
 <template>
   <div id="app">
-    <RouterView style="padding-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top));"/>
-    <NavBar/>
+    <RouterView style="padding-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 16px);"/>
+    <NavBar v-if="isAppLoaded"/>
   </div>
 </template>
 
 <script>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from './stores/authStore';
 
 export default {
   name: 'App',
   setup() {
     const authStore = useAuthStore();
+    const isAppLoaded = ref(false);
 
     onMounted(async () => {
-      // Инициализация Telegram WebApp
-      window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      
+      isAppLoaded.value = false;
+
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
       }
 
-      // Авторизация через Telegram мини-приложение
       await authStore.initialize();
+
+      if (authStore.user) {
+        isAppLoaded.value = true;
+      }
     });
+
+    return { isAppLoaded };
   }
 }
 </script>
