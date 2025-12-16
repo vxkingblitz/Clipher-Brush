@@ -35,6 +35,7 @@ export const useAuthStore = defineStore('auth', {
                 // return response.data;
 
                 this.user = tg.initDataUnsafe.user
+                this.user = true
                 return this.user
             } catch (error) {
                 console.error('Login error:', error);

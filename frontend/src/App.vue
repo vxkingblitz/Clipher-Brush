@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <RouterView style="padding-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 16px);"/>
+    
+    <RouterView style="margin-top: calc(var(--tg-content-safe-area-inset-top) + var(--tg-content-safe-area-inset-top) + 16px);"/>
     <NavBar v-if="isAppLoaded"/>
   </div>
 </template>

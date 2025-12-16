@@ -40,7 +40,7 @@ const buttonClass = computed(() => {
 
 const buttonStyle = computed(() => {
   if (props.disabled) {
-    return { backgroundColor: 'var(--color-outline)' }
+    return { backgroundColor: 'var(--color-light-gray)' }
   }
   if (props.variant === 1) {
     return { backgroundColor: props.backgroundColor || 'var(--color-main)' }

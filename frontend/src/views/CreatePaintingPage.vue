@@ -5,7 +5,7 @@
         <h1 v-if="step == 3">Создание шедевра!</h1>
         <h1 v-if="step == 4">Все готово!</h1>
 
-        <div id="pageView" class="createContent" v-if="step == 1" @click="openFileInput">
+        <div id="pageView" class="createContent" style="height: 60%;" v-if="step == 1" @click="openFileInput()">
             <input 
                 ref="fileInput" 
                 type="file" 
@@ -22,8 +22,8 @@
             <div v-else style="display: flex; flex-direction: column; gap: 30px; align-items: center; justify-content: center; margin-top: 30px;">
                 <img :src="photoPreview" alt="photo_for_drawing" class="imagePreview">
                 <div class="actions">
-                    <ButtonComponent :variant="1" :label="'Далее'" @click.stop="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); step = 2" :isLoading="false"/>
-                    <ButtonComponent :variant="3" :label="'Изменить изображение'" @click.stop="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); openFileInput" :isLoading="false"/>
+                    <ButtonComponent :variant="1" :label="'Далее'" @click.stop="handleHapticFeedback(); step = 2" :isLoading="false"/>
+                    <ButtonComponent :variant="3" :label="'Изменить изображение'" @click.stop="handleHapticFeedback(); openFileInput()" :isLoading="false"/>
                 </div>
             </div>
         </div>
@@ -36,14 +36,15 @@
                     :required="true"
                     :type="'tel'"
                     :placeholder="'Введите количество цветов'"
-                    v-model="s"
+                    v-model="formData.colors_amount"
                 />
                 <SelectList
-                    :options="['1 день', '1 неделя', '1 месяц', '6 месяев', 'Год']"
+                    :options="markers_list"
                     :searchable="false"
-                    :placeholderdata="'Выберите период'"
+                    :placeholderdata="'Выберите набор маркеров'"
+                    v-model="formData.markers_set"
                 />
-                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="window.Telegram.WebApp.HapticFeedback.impactOccurred('light'); step = 3" :isLoading="false"/>
+                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="handleHapticFeedback(); step = 3" :isLoading="false" :disabled="!formData.colors_amount || !formData.markers_set"/>
             </div>
         </div>
 
@@ -67,12 +68,29 @@ export default {
 
             formData:{
                 photo: null,
-                colors_amount: Number,
-                markers_set: Object,
-            }
+                colors_amount: '',
+                markers_set: '',
+            },
+
+            markers_list:[
+                'Без набора',
+                'GuangNa, 240шт',
+                'GuangNa, 120шт',
+                'GuangNa, 64шт',
+                'GuangNa, 32шт',
+                'Languo , 240шт',
+                'Languo , 120шт',
+                'Languo , 64шт',
+                'Languo , 32шт',
+            ]
         }
     },
     methods: {
+        handleHapticFeedback() {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+            }
+        },
         openFileInput() {
             this.$refs.fileInput?.click();
         },
@@ -142,7 +160,6 @@ span{
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: 60%;
     align-items: center;
     justify-content: center;
 }

@@ -6,10 +6,10 @@
       <div 
         class="selected" 
         :class="{ open }" 
-        :style="{ color: displayValue.length > 0 ? 'var(--color-dark-grey)' : 'var(--color-light-grey)' }" 
+        :style="{ color: hasValue ? 'var(--color-black)' : 'var(--color-dark-gray)' }" 
         @click="toggleOpen"
       >
-        {{ displayValue || defaultOption }}
+        {{ hasValue ? displayValue : placeholderdata }}
       </div>
       
       <div 
@@ -125,13 +125,28 @@ export default {
         this.getOptionName(option).toLowerCase().includes(term)
       );
     },
-    
-    displayValue() {
-      return this.getOptionName(this.internalValue);
+
+    hasValue() {
+      // Вариант: если internalValue == null, или пустая строка - нет значения
+      // Если internalValue - объект, но ни id/имя нет - нет значения
+      if (
+        this.internalValue === null ||
+        this.internalValue === undefined ||
+        (typeof this.internalValue === "string" && this.internalValue.trim() === "")
+      ) {
+        return false;
+      }
+      if (
+        typeof this.internalValue === "object" &&
+        Object.keys(this.internalValue).length === 0
+      ) {
+        return false;
+      }
+      return true;
     },
-    
-    defaultOption() {
-      return this.placeholderdata.length > 0 ? this.placeholderdata : this.getOptionName(this.optionsList[0]);
+
+    displayValue() {
+      return this.hasValue ? this.getOptionName(this.internalValue) : '';
     }
   },
   watch: {
@@ -220,15 +235,9 @@ export default {
       }
       return optionName;
     }
-  },
-  mounted() {
-    if (this.optionsList.length > 0 && !this.internalValue) {
-      this.internalValue = this.optionsList[0];
-    }
   }
 };
 </script>
-
 
 
 
@@ -271,7 +280,6 @@ export default {
 }
 
 .custom-select {
-  position: relative;
   width: 100%;
   text-align: left;
   justify-items: center;
@@ -301,7 +309,7 @@ export default {
   border-radius: 10px;
 }
 
-.selected:after {
+/* .selected:after {
   position: absolute;
   content: "";
   top: 22px;
@@ -319,22 +327,23 @@ export default {
   top: 20px;
   rotate: 180deg;
   transition: .3s ease all;
-}
+} */
 
 .items {
   opacity: 1;
-  max-height: 170px;
+  max-height: 80svh;
   overflow-x: hidden;
   overflow-y: scroll;
-  margin-top: 20px;
   color: var(--color-black);
-  border-radius: 32px;
+  border-radius: 32px 32px 0 0;
   border: 1px solid var(--color-main);
-  position: absolute;
+  position: fixed;
   background-color: var(--color-white);
+  bottom: 0;
   left: 0;
-  right: 0;
-  z-index: 1;
+  width: 100%;
+  padding-bottom: 100px;
+  z-index: 20;
   filter: drop-shadow(0 0 10px rgb(227, 227, 227));
   transition: all .2s ease;
 }

@@ -56,6 +56,7 @@ export default {
     bottom: 0;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 10;
     width: 310px;
     border: 1px solid var(--color-main);
     border-radius: 40px;
