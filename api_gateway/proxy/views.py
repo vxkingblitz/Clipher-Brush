@@ -32,6 +32,23 @@ class ProxyView:
         user_id = getattr(request, "user_id", None)
         if user_id is not None:
             headers["X-User-Id"] = str(user_id)
+            
+            # Для POST запросов к paintings получаем username из auth_service
+            # и передаем его через заголовок, чтобы сохранить в базе
+            if service == "paintings" and request.method == "POST":
+                try:
+                    auth_response = requests.get(
+                        f"{SERVICE_URLS['auth']}/auth/users/{user_id}/",
+                        timeout=2
+                    )
+                    if auth_response.status_code == 200:
+                        user_data = auth_response.json()
+                        username = user_data.get("username")
+                        if username:
+                            headers["X-Username"] = username
+                except Exception:
+                    # Если не удалось получить username, продолжаем без него
+                    pass
 
         # Обработка multipart/form-data для загрузки файлов
         # Для multipart передаем raw body напрямую, так как Django может не парсить его автоматически

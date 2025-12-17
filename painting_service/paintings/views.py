@@ -17,6 +17,7 @@ class PaintingCreateView(APIView):
     def post(self, request):
 
         user_id = request.headers.get("X-User-Id")
+        username = request.headers.get("X-Username")
         
         # Логируем что пришло
         print(f"Request data keys: {list(request.data.keys())}")
@@ -87,6 +88,7 @@ class PaintingCreateView(APIView):
 
         painting = PaintingService.create_painting(
             user_id=user_id,
+            username=username,
             validated_data=serializer.validated_data
         )
 

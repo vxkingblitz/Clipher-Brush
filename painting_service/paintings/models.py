@@ -5,6 +5,7 @@ class Painting(models.Model):
     painting_id = models.BigAutoField(primary_key=True)
 
     user_id = models.BigIntegerField()
+    username = models.CharField(max_length=255, null=True, blank=True)
 
     photo = models.ImageField(upload_to="original/")
     painting_numbered = models.ImageField(
