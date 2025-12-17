@@ -26,6 +26,12 @@ _axios.interceptors.request.use(
     if (authStore.token) {
       config.headers["Authorization"] = `Bearer ${authStore.token}`;
     }
+    
+    // Если это FormData, убираем Content-Type чтобы браузер сам установил с boundary
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+    
     config.withCredentials = true;
     return config;
   },

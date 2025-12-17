@@ -1,5 +1,7 @@
 import requests
 from django.http import HttpResponse
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import io
 
 
 SERVICE_URLS = {
@@ -22,7 +24,7 @@ class ProxyView:
         headers = {
             key: value
             for key, value in request.headers.items()
-            if key.lower() != "host"
+            if key.lower() not in ["host", "content-length"]
         }
 
         # Прокидываем user_id из JWT в микросервисы через заголовок,
@@ -32,31 +34,22 @@ class ProxyView:
             headers["X-User-Id"] = str(user_id)
 
         # Обработка multipart/form-data для загрузки файлов
-        files = None
-        data = None
+        # Для multipart передаем raw body напрямую, так как Django может не парсить его автоматически
+        content_type = request.META.get('CONTENT_TYPE', '')
+        is_multipart = 'multipart/form-data' in content_type.lower()
         
-        # Проверяем, есть ли файлы в запросе (Django автоматически парсит multipart)
-        if hasattr(request, 'FILES') and request.FILES:
-            files = {}
-            for key, file in request.FILES.items():
-                # Сохраняем содержимое файла в память
-                file_content = file.read()
-                files[key] = (file.name, file_content, file.content_type or 'application/octet-stream')
-                file.seek(0)  # Возвращаем указатель в начало для дальнейшего использования Django
-            
-            # Остальные данные из POST (кроме файлов)
-            if hasattr(request, 'POST'):
-                data = {}
-                for key, value in request.POST.items():
-                    if key not in files:
-                        # POST может содержать списки, берем первый элемент если это список
-                        data[key] = value[0] if isinstance(value, list) and len(value) > 0 else value
+        if is_multipart:
+            # Для multipart передаем raw body с оригинальным Content-Type
+            # Это сохранит boundary и все данные
+            data = request.body
+            # Сохраняем оригинальный Content-Type с boundary
+            if 'content-type' not in headers and content_type:
+                headers['Content-Type'] = content_type
         else:
-            # Для обычных запросов используем body
+            # Для обычных запросов (JSON и т.д.) используем body
             data = request.body
             # Убираем Content-Type из заголовков для body, чтобы requests сам определил
             if 'content-type' in headers:
-                # Для JSON оставляем, для остального убираем
                 if 'application/json' not in headers.get('content-type', '').lower():
                     headers.pop('content-type', None)
         
@@ -65,8 +58,8 @@ class ProxyView:
             url=target_url,
             headers=headers,
             data=data,
-            files=files,
             params=request.GET,
+            timeout=120 if is_multipart else 30,
         )
 
         # Создаем HttpResponse с содержимым ответа

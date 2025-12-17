@@ -3,6 +3,7 @@ from paintings.services.painting_service import PaintingService
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework import parsers
 from paintings.models import Painting
 from paintings.serializers import PaintingCreateSerializer, PaintingResponseSerializer
 from paintings.serializers import PublicPaintingSerializer
@@ -11,11 +12,35 @@ from common.exceptions import ApiException
 
 
 class PaintingCreateView(APIView):
+    parser_classes = [parsers.MultiPartParser, parsers.JSONParser]
+    
     def post(self, request):
 
         user_id = request.headers.get("X-User-Id")
+        
+        # Преобразуем строковые значения в числа для валидации
+        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        
+        # Преобразуем colors_amount и markers_set_id в числа если они строки
+        if 'colors_amount' in data:
+            try:
+                data['colors_amount'] = int(data['colors_amount'])
+            except (ValueError, TypeError):
+                pass
+        
+        if 'markers_set_id' in data and data['markers_set_id']:
+            try:
+                data['markers_set_id'] = int(data['markers_set_id'])
+            except (ValueError, TypeError):
+                pass
+        
+        if 'category_id' in data and data['category_id']:
+            try:
+                data['category_id'] = int(data['category_id'])
+            except (ValueError, TypeError):
+                pass
 
-        serializer = PaintingCreateSerializer(data=request.data)
+        serializer = PaintingCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         painting = PaintingService.create_painting(

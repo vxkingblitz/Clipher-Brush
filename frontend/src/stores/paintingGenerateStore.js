@@ -18,13 +18,12 @@ export const useGeneratorStore = defineStore('generator', {
             formData.append('markers_set_id', payload.markers_set_id);
             formData.append('colors_amount', payload.colors_amount);
             
+            // НЕ устанавливаем Content-Type вручную - браузер сам установит с правильным boundary
             const response = await this._makeRequest({
                 url: '/paintings/',
                 method: 'POST',
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                data: formData
+                // Не передаем headers - axios сам установит правильный Content-Type для FormData
             })
             this.painting_id = response.painting_id
             return response
