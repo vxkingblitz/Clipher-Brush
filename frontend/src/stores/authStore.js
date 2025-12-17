@@ -29,12 +29,13 @@ export const useAuthStore = defineStore('auth', {
             try {
                 this.isLoading = true;
                 
-                const tg = window.Telegram?.WebApp;
-                if (!tg) {
-                    throw new Error('Telegram WebApp not available');
-                }
+                // const tg = window.Telegram?.WebApp;
+                // if (!tg) {
+                //     throw new Error('Telegram WebApp not available');
+                // }
 
-                const initData = tg.initData;
+                // let initData = tg.initData;
+                let initData = "1";
                 if (!initData) {
                     throw new Error('Telegram initData not available');
                 }

@@ -39,8 +39,23 @@ class ProxyView:
             params=request.GET,
         )
 
-        return HttpResponse(
+        # Создаем HttpResponse с содержимым ответа
+        http_response = HttpResponse(
             response.content,
             status=response.status_code,
-            content_type=response.headers.get("Content-Type"),
+            content_type=response.headers.get("Content-Type", "application/json"),
         )
+
+        # Передаем все заголовки из ответа микросервиса (кроме тех, что Django обрабатывает сам)
+        excluded_headers = {
+            "connection",
+            "content-encoding",
+            "content-length",
+            "transfer-encoding",
+            "server",
+        }
+        for header, value in response.headers.items():
+            if header.lower() not in excluded_headers:
+                http_response[header] = value
+
+        return http_response
