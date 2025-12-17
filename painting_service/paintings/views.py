@@ -24,7 +24,26 @@ class PaintingCreateView(APIView):
         )
 
         try:
-            palette = request.data.get("markers_set_id")
+            markers_set_id = request.data.get("markers_set_id")
+            palette = None
+            
+            # Получаем палитру из catalog_service по markers_set_id
+            if markers_set_id:
+                import requests as req
+                try:
+                    catalog_response = req.get(
+                        f"http://catalog-service:8003/catalog/markers-sets/{markers_set_id}/",
+                        timeout=5
+                    )
+                    if catalog_response.status_code == 200:
+                        markers_set = catalog_response.json()
+                        palette = markers_set.get("colors_data", [])
+                except Exception as e:
+                    # Если не удалось получить палитру, используем None (дефолтная палитра)
+                    print(f"Failed to get markers set: {e}")
+                    palette = None
+            
+            # Если палитра не получена, передаем None - image_processor использует дефолтную PALETTE_OBJECTS
             result = MlClient.process_painting(painting, palette)
 
             painting.painting_numbered = result["numbered_image"]

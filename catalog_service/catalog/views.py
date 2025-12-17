@@ -19,7 +19,12 @@ class CategoryListView(APIView):
 
 
 class MarkersSetListView(APIView):
-    def get(self, request):
+    def get(self, request, markers_set_id=None):
+        if markers_set_id is not None:
+            markers_set = get_object_or_404(MarkersSet, pk=markers_set_id)
+            serializer = MarkersSetSerializer(markers_set)
+            return Response(serializer.data)
+        
         markers_sets = MarkersSet.objects.all()
         serializer = MarkersSetSerializer(markers_sets, many=True)
         return Response(serializer.data)

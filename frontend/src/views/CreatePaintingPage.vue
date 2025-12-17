@@ -109,14 +109,21 @@ export default {
                 }
             }
         },
-        generatePainting(){
+        async generatePainting(){
             let payload = {
                 photo: this.formData.photo,
                 category_id: 0,
                 markers_set_id: this.formData.markers_set,
                 colors_amount: this.formData.colors_amount,
             }
-            this.profileStore.generatePainting(payload);
+            try {
+                await this.generatorStore.generatePainting(payload);
+                this.step = 4; // Переход на шаг "Все готово"
+            } catch (error) {
+                console.error('Ошибка генерации:', error);
+                alert('Произошла ошибка при создании раскраски');
+                this.step = 2; // Возврат на шаг выбора параметров
+            }
         },
     },
     beforeUnmount() {

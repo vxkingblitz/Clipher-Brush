@@ -31,11 +31,41 @@ class ProxyView:
         if user_id is not None:
             headers["X-User-Id"] = str(user_id)
 
+        # Обработка multipart/form-data для загрузки файлов
+        files = None
+        data = None
+        
+        # Проверяем, есть ли файлы в запросе (Django автоматически парсит multipart)
+        if hasattr(request, 'FILES') and request.FILES:
+            files = {}
+            for key, file in request.FILES.items():
+                # Сохраняем содержимое файла в память
+                file_content = file.read()
+                files[key] = (file.name, file_content, file.content_type or 'application/octet-stream')
+                file.seek(0)  # Возвращаем указатель в начало для дальнейшего использования Django
+            
+            # Остальные данные из POST (кроме файлов)
+            if hasattr(request, 'POST'):
+                data = {}
+                for key, value in request.POST.items():
+                    if key not in files:
+                        # POST может содержать списки, берем первый элемент если это список
+                        data[key] = value[0] if isinstance(value, list) and len(value) > 0 else value
+        else:
+            # Для обычных запросов используем body
+            data = request.body
+            # Убираем Content-Type из заголовков для body, чтобы requests сам определил
+            if 'content-type' in headers:
+                # Для JSON оставляем, для остального убираем
+                if 'application/json' not in headers.get('content-type', '').lower():
+                    headers.pop('content-type', None)
+        
         response = requests.request(
             method=request.method,
             url=target_url,
             headers=headers,
-            data=request.body,
+            data=data,
+            files=files,
             params=request.GET,
         )
 
