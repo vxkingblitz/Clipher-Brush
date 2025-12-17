@@ -110,12 +110,25 @@ export default {
             }
         },
         async generatePainting(){
+            // Преобразуем markers_set из строки в ID или null
+            // Если выбрано "Без набора", передаем null
+            let markers_set_id = null;
+            if (this.formData.markers_set && this.formData.markers_set !== 'Без набора') {
+                // Здесь можно добавить маппинг строк в ID, если нужно
+                // Пока передаем null, если не "Без набора"
+                markers_set_id = null; // TODO: добавить маппинг строк в реальные ID из БД
+            }
+            
             let payload = {
                 photo: this.formData.photo,
-                category_id: 0,
-                markers_set_id: this.formData.markers_set,
-                colors_amount: this.formData.colors_amount,
+                // Не передаем category_id если он 0 или не выбран
+                ...(this.formData.category_id && this.formData.category_id > 0 ? { category_id: this.formData.category_id } : {}),
+                ...(markers_set_id ? { markers_set_id: markers_set_id } : {}),
+                colors_amount: parseInt(this.formData.colors_amount) || 0,
             }
+            
+            console.log('Sending payload:', payload);
+            
             try {
                 await this.generatorStore.generatePainting(payload);
                 this.step = 4; // Переход на шаг "Все готово"

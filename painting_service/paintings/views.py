@@ -18,6 +18,11 @@ class PaintingCreateView(APIView):
 
         user_id = request.headers.get("X-User-Id")
         
+        # Логируем что пришло
+        print(f"Request data keys: {list(request.data.keys())}")
+        print(f"Request FILES keys: {list(request.FILES.keys()) if hasattr(request, 'FILES') else 'No FILES'}")
+        print(f"Content-Type: {request.META.get('CONTENT_TYPE', 'Not set')}")
+        
         # Преобразуем строковые значения в числа для валидации
         data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
         
@@ -25,23 +30,38 @@ class PaintingCreateView(APIView):
         if 'colors_amount' in data:
             try:
                 data['colors_amount'] = int(data['colors_amount'])
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                print(f"Error converting colors_amount: {e}, value: {data.get('colors_amount')}")
         
         if 'markers_set_id' in data and data['markers_set_id']:
             try:
-                data['markers_set_id'] = int(data['markers_set_id'])
-            except (ValueError, TypeError):
-                pass
+                # Преобразуем в int, но если это 0 или пустая строка, ставим None
+                markers_set_id = int(data['markers_set_id'])
+                data['markers_set_id'] = markers_set_id if markers_set_id > 0 else None
+            except (ValueError, TypeError) as e:
+                print(f"Error converting markers_set_id: {e}, value: {data.get('markers_set_id')}")
+                data['markers_set_id'] = None
         
-        if 'category_id' in data and data['category_id']:
+        if 'category_id' in data:
             try:
-                data['category_id'] = int(data['category_id'])
-            except (ValueError, TypeError):
-                pass
+                # Если category_id = 0, ставим None (так как 0 не валидный ID)
+                category_id = int(data['category_id'])
+                data['category_id'] = category_id if category_id > 0 else None
+            except (ValueError, TypeError) as e:
+                print(f"Error converting category_id: {e}, value: {data.get('category_id')}")
+                data['category_id'] = None
+
+        print(f"Processed data: {data}")
+        print(f"Photo in data: {'photo' in data}")
+        print(f"Photo in FILES: {'photo' in request.FILES if hasattr(request, 'FILES') else False}")
 
         serializer = PaintingCreateSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            # Логируем ошибки валидации для отладки
+            print(f"Validation errors: {serializer.errors}")
+            print(f"Received data: {data}")
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError(serializer.errors)
 
         painting = PaintingService.create_painting(
             user_id=user_id,
