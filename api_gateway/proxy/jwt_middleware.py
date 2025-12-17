@@ -11,6 +11,10 @@ class JwtMiddleware:
         # auth endpoints пропускаем без токена
         if request.path.startswith("/auth/"):
             return self.get_response(request)
+        
+        # Медиа файлы пропускаем без токена (публичные изображения)
+        if "/media/" in request.path:
+            return self.get_response(request)
 
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
