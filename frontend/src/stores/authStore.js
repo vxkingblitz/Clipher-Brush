@@ -49,29 +49,18 @@ export const useAuthStore = defineStore('auth', {
 
                 this.token = response.access_token;
                 this.user = { user_id: response.user_id };
+
                 
                 localStorage.setItem('tg_token', this.token);
                 localStorage.setItem('tg_user', JSON.stringify(this.user));
                 
-                try {
-                    await router.push({ name: 'Feed', params: { tab: 'all' } });
-                } catch (routerError) {
-                    console.error('Router navigation error:', routerError);
-                    const alertsStore = useAlertsStore();
-                    alertsStore.showNotification({
-                        message: 'Ошибка навигации',
-                        status: 'error'
-                    });
-                }
+                await router.push({ name: 'Feed', params: { tab: 'all' } });
                 
                 return response;
             } catch (error) {
                 console.error('Login error:', error);
                 const alertsStore = useAlertsStore();
-                alertsStore.showNotification({
-                    message: error.message || 'Ошибка авторизации',
-                    status: 'error'
-                });
+                alert(error.message || 'Ошибка авторизации');
                 throw error;
             } finally {
                 this.isLoading = false;
