@@ -37,3 +37,25 @@ class TelegramAuthView(APIView):
             "access_token": token,
             "user_id": user.user_id
         })
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UserDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, user_id):
+        user = UserService.get_user_by_id(user_id)
+        if not user:
+            raise ApiException(
+                "Not found",
+                "User not found",
+                404
+            )
+
+        return Response({
+            "user_id": user.user_id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "photo_url": user.photo_url,
+        })
