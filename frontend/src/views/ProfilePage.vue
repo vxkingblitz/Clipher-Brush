@@ -32,12 +32,12 @@
             <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
         </section>
 
-        <div class="messageBox" v-if="myPaintingsList.length == 0 && !loadingMy">
+        <div class="messageBox" v-if="paintingsListMy.length == 0 && !loadingMy">
             <img src="../assets/img/book.png" alt="empty-feed">
             <span>Пока ничего нет :(</span>
         </div>
 
-        <section class="feed-content" v-if="myPaintingsList.length > 0 && !loadingMy">
+        <section class="feed-content" v-if="paintingsListMy.length > 0 && !loadingMy">
             <PaintingCard id="pageView" v-for="i in 10" :key="i.id"/>
         </section>
     </div>
@@ -66,7 +66,7 @@ export default {
         }, 1000);
 
         setTimeout(() => {
-            this.profileStore.getMyPaintingsList()
+            this.profileStore.getPaintingsMyList()
             this.loadingMy = false;
         }, 1000);
     },
@@ -80,21 +80,30 @@ export default {
         favouritePaintingsList(){
             return this.profileStore.favouritePaintingsList;
         },
-        myPaintingsList(){
-            return this.profileStore.myPaintingsList;
+        paintingsListMy(){
+            return this.profileStore.paintingsListMy;
         },
     },
 }
 </script>
 
 <style scoped>
-.feed-content{
+.feed-content {
+    margin-bottom: 110px;
     padding: 0 6px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 1fr;
-    grid-column-gap: 6px;
-    grid-row-gap: 6px;
-    margin-bottom: 110px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 6px;
+}
+@media (max-width: 768px){
+    .feed-content{
+        padding: 0 6px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 1fr;
+        grid-column-gap: 6px;
+        grid-row-gap: 6px;
+        margin-bottom: 110px;
+    }
 }
 </style>

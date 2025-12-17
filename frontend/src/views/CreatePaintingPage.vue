@@ -44,7 +44,7 @@
                     :placeholderdata="'Выберите набор маркеров'"
                     v-model="formData.markers_set"
                 />
-                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="handleHapticFeedback(); step = 3" :isLoading="false" :disabled="!formData.colors_amount || !formData.markers_set"/>
+                <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="handleHapticFeedback(); step = 3; generatePainting()" :isLoading="false" :disabled="!formData.colors_amount || !formData.markers_set"/>
             </div>
         </div>
 
@@ -60,6 +60,9 @@
 </template>
 
 <script>
+import { useGeneratorStore } from '../stores/paintingGenerateStore'
+import { mapStores } from 'pinia'
+
 export default {
     data(){
         return{
@@ -105,13 +108,25 @@ export default {
                     alert('Пожалуйста, выберите файл в формате JPG или PNG');
                 }
             }
-        }
+        },
+        generatePainting(){
+            let payload = {
+                photo: this.formData.photo,
+                category_id: 0,
+                markers_set_id: this.formData.markers_set,
+                colors_amount: this.formData.colors_amount,
+            }
+            return this.profileStore.generatePainting(payload);
+        },
     },
     beforeUnmount() {
         if (this.photoPreview) {
             URL.revokeObjectURL(this.photoPreview);
         }
-    }
+    },
+    computed: {
+        ...mapStores(useProfileStore),
+    },
 }
 </script>
 

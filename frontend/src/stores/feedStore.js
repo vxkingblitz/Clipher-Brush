@@ -5,6 +5,7 @@ export const useFeedStore = defineStore('feed', {
     state: () => ({
         paintingsList: [],
         categoriesList: [],
+        paintingsListMy: [],
     }),
     actions: {
         async _makeRequest(config, successMessage = null) {
@@ -17,6 +18,13 @@ export const useFeedStore = defineStore('feed', {
                 method: 'GET',
             })
             this.paintingsList = response.data.results
+        },
+        async getPaintingsMyList() {
+            const response = await this._makeRequest({
+                url: '/paintings/my/',
+                method: 'GET',
+            })
+            this.paintingsListMy = response.data.results
         },
         async getCategoriesList() {
             const response = await this._makeRequest({
