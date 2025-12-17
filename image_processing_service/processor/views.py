@@ -14,13 +14,26 @@ class ProcessImageView(APIView):
         image = request.FILES.get("image")
         palette_raw = request.data.get("palette")
 
-        if not image or not palette_raw:
+        if not image:
             return success_response(
-                {"error": "image and palette are required"},
+                {"error": "image is required"},
                 status=400
             )
 
-        palette = json.loads(palette_raw)
+        # Палитра может быть None (используется дефолтная)
+        palette = None
+        if palette_raw:
+            try:
+                palette_parsed = json.loads(palette_raw)
+                # Если это не None и не пустой список, используем его
+                if palette_parsed is not None:
+                    palette = palette_parsed
+            except json.JSONDecodeError as e:
+                print(f"Error parsing palette JSON: {e}, palette_raw: {palette_raw}")
+                # Если ошибка парсинга, используем None (дефолтная палитра)
+                palette = None
+        
+        print(f"Processing image: {image.name}, palette: {len(palette) if palette else 'default (None)'}")
 
         input_path = settings.MEDIA_ROOT / "input" / image.name
         os.makedirs(input_path.parent, exist_ok=True)

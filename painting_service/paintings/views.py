@@ -115,15 +115,120 @@ class PaintingCreateView(APIView):
             else:
                 print("No markers_set_id provided, using default palette")
             
+            print(f"Calling MlClient.process_painting with palette: {palette is not None}")
             # Если палитра не получена, передаем None - image_processor использует дефолтную PALETTE_OBJECTS
             result = MlClient.process_painting(painting, palette)
+            print(f"ML processing result: {result}")
 
-            painting.painting_numbered = result["numbered_image"]
-            painting.painting_colored = result["colored_image"]
+            # Скачиваем файлы из image_processing_service через HTTP
+            # image_processing_service возвращает пути внутри своего контейнера,
+            # нужно скачать файлы через HTTP endpoint или использовать общий volume
+            import os
+            import requests as req
+            from django.core.files.base import ContentFile
+            from django.conf import settings
+            
+            numbered_path = result.get("numbered_image")
+            colored_path = result.get("colored_image")
+            job_id = result.get("job_id")
+            
+            print(f"Trying to access files: numbered={numbered_path}, colored={colored_path}, job_id={job_id}")
+            
+            # Пробуем скачать файлы через HTTP endpoint image_processing_service
+            # Или используем общий путь, если volume настроен
+            base_url = "http://image-processing-service:8004"
+            
+            # Скачиваем numbered image
+            if numbered_path and job_id:
+                try:
+                    # Пробуем скачать через HTTP endpoint (если он есть) или использовать общий путь
+                    # Сначала пробуем прямой доступ к файлу (если volume общий)
+                    if os.path.exists(numbered_path):
+                        print(f"File exists locally: {numbered_path}")
+                        with open(numbered_path, 'rb') as f:
+                            file_name = f"numbered_{painting.painting_id}.png"
+                            painting.painting_numbered.save(
+                                file_name,
+                                ContentFile(f.read()),
+                                save=False
+                            )
+                    else:
+                        # Файл находится в общем volume image_processing_service
+                        # Путь в image_processing_service: /app/media/output/{job_id}/numbered.png
+                        # В painting_service доступен как: /shared_media/output/{job_id}/numbered.png
+                        print(f"File not found locally, trying shared volume path...")
+                        # Извлекаем относительный путь от MEDIA_ROOT image_processing_service
+                        # numbered_path может быть: /app/media/output/{job_id}/numbered.png
+                        # Нужно получить: output/{job_id}/numbered.png
+                        if '/media/' in numbered_path:
+                            relative_path = numbered_path.split('/media/')[1]
+                            alt_path = f"/shared_media/{relative_path}"
+                        else:
+                            # Если путь уже относительный или другой формат
+                            alt_path = f"/shared_media/output/{job_id}/numbered.png"
+                        
+                        print(f"Trying shared volume path: {alt_path}")
+                        if os.path.exists(alt_path):
+                            with open(alt_path, 'rb') as f:
+                                file_name = f"numbered_{painting.painting_id}.png"
+                                painting.painting_numbered.save(
+                                    file_name,
+                                    ContentFile(f.read()),
+                                    save=False
+                                )
+                        else:
+                            raise Exception(f"Numbered image not accessible. Tried: {numbered_path}, {alt_path}")
+                except Exception as e:
+                    print(f"Error saving numbered image: {e}")
+                    import traceback
+                    print(traceback.format_exc())
+                    raise
+            
+            # Скачиваем colored image
+            if colored_path and job_id:
+                try:
+                    if os.path.exists(colored_path):
+                        print(f"File exists locally: {colored_path}")
+                        with open(colored_path, 'rb') as f:
+                            file_name = f"colored_{painting.painting_id}.png"
+                            painting.painting_colored.save(
+                                file_name,
+                                ContentFile(f.read()),
+                                save=False
+                            )
+                    else:
+                        # Аналогично для colored image
+                        if '/media/' in colored_path:
+                            relative_path = colored_path.split('/media/')[1]
+                            alt_path = f"/shared_media/{relative_path}"
+                        else:
+                            alt_path = f"/shared_media/output/{job_id}/colored.png"
+                        
+                        print(f"Trying shared volume path: {alt_path}")
+                        if os.path.exists(alt_path):
+                            with open(alt_path, 'rb') as f:
+                                file_name = f"colored_{painting.painting_id}.png"
+                                painting.painting_colored.save(
+                                    file_name,
+                                    ContentFile(f.read()),
+                                    save=False
+                                )
+                        else:
+                            raise Exception(f"Colored image not accessible. Tried: {colored_path}, {alt_path}")
+                except Exception as e:
+                    print(f"Error saving colored image: {e}")
+                    import traceback
+                    print(traceback.format_exc())
+                    raise
+            
             painting.status = "completed"
             painting.save()
+            print(f"Painting {painting.painting_id} successfully processed")
 
-        except Exception:
+        except Exception as e:
+            import traceback
+            print(f"Error processing painting {painting.painting_id}: {str(e)}")
+            print(f"Traceback: {traceback.format_exc()}")
             painting.status = "failed"
             painting.save()
 

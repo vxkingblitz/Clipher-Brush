@@ -35,6 +35,8 @@ services:
       - postgres
       - image-processing-service
     restart: unless-stopped
+    volumes:
+      - shared_media:/shared_media
     networks:
       - app-network
 
@@ -53,6 +55,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8004
     env_file: .env
     restart: unless-stopped
+    volumes:
+      - shared_media:/app/media
     networks:
       - app-network
 
@@ -97,6 +101,7 @@ services:
 
 volumes:
   postgres_data:
+  shared_media:
 
 networks:
   app-network:
