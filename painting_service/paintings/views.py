@@ -12,6 +12,7 @@ from common.exceptions import ApiException
 
 class PaintingCreateView(APIView):
     def post(self, request):
+
         user_id = request.headers.get("X-User-Id")
 
         serializer = PaintingCreateSerializer(data=request.data)
@@ -23,7 +24,7 @@ class PaintingCreateView(APIView):
         )
 
         try:
-            palette = request.data.get("palette")
+            palette = request.data.get("markers_set_id")
             result = MlClient.process_painting(painting, palette)
 
             painting.painting_numbered = result["numbered_image"]
