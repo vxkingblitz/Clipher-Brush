@@ -66,12 +66,18 @@ export default {
         }, 1000);
 
         setTimeout(() => {
-            this.profileStore.getPaintingsMyList()
+            this.profileStore.getMyPaintingsList()
             this.loadingMy = false;
         }, 1000);
     },
     methods:{
         setTab(tab) {
+            if(tab == 'favourites') {
+                this.profileStore.getFavouritePaintingsList()
+            } else {
+                this.profileStore.getMyPaintingsList()
+            }
+            this.profileStore.getMyPaintingsList()
             this.$router.push({ name: 'Profile', params: { tab } })
         },
     },
