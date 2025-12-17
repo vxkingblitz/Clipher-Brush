@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
                     throw new Error('Telegram initData not available');
                 }
 
-                const tokens = await this._makeRequest({
+                const response = await this._makeRequest({
                     method: 'post',
                     url: 'auth/telegram/',
                     data: {
@@ -45,13 +45,13 @@ export const useAuthStore = defineStore('auth', {
                     }
                 }, "auth failed")
 
-                this.token = tokens.access_token;
-                this.user = { user_id: tokens.user_id };
+                this.token = response.data.access_token;
+                this.user = { user_id: response.data.user_id };
                 
                 localStorage.setItem('tg_token', this.token);
                 localStorage.setItem('tg_user', JSON.stringify(this.user));
                 
-                return tokens;
+                return response;
             } catch (error) {
                 console.error('Login error:', error);
                 throw error;
