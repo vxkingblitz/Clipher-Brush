@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import axiosInstance from '../plugins/axios';
 import { useRequestsStore } from './requestsStore'
+import router from '../router/router.js';
+import { useAlertsStore } from './alertsStore';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -45,15 +47,31 @@ export const useAuthStore = defineStore('auth', {
                     }
                 }, "auth failed")
 
-                this.token = response.data.access_token;
-                this.user = { user_id: response.data.user_id };
+                this.token = response.access_token;
+                this.user = { user_id: response.user_id };
                 
                 localStorage.setItem('tg_token', this.token);
                 localStorage.setItem('tg_user', JSON.stringify(this.user));
                 
+                try {
+                    await router.push({ name: 'Feed', params: { tab: 'all' } });
+                } catch (routerError) {
+                    console.error('Router navigation error:', routerError);
+                    const alertsStore = useAlertsStore();
+                    alertsStore.showNotification({
+                        message: 'Ошибка навигации',
+                        status: 'error'
+                    });
+                }
+                
                 return response;
             } catch (error) {
                 console.error('Login error:', error);
+                const alertsStore = useAlertsStore();
+                alertsStore.showNotification({
+                    message: error.message || 'Ошибка авторизации',
+                    status: 'error'
+                });
                 throw error;
             } finally {
                 this.isLoading = false;
