@@ -19,7 +19,11 @@ class ProxyView:
         if not base_url:
             return HttpResponse(status=404)
 
-        target_url = f"{base_url}/{service}/{path}"
+        # Для медиа файлов проксируем напрямую к /media/ без префикса /paintings/
+        if path.startswith("media/"):
+            target_url = f"{base_url}/{path}"
+        else:
+            target_url = f"{base_url}/{service}/{path}"
 
         headers = {
             key: value
@@ -37,18 +41,32 @@ class ProxyView:
             # и передаем его через заголовок, чтобы сохранить в базе
             if service == "paintings" and request.method == "POST":
                 try:
+                    auth_url = f"{SERVICE_URLS['auth']}/auth/users/{user_id}/"
+                    print(f"API Gateway: Requesting user info from {auth_url}")
                     auth_response = requests.get(
-                        f"{SERVICE_URLS['auth']}/auth/users/{user_id}/",
+                        auth_url,
                         timeout=2
                     )
+                    print(f"API Gateway: Auth service response status: {auth_response.status_code}")
                     if auth_response.status_code == 200:
                         user_data = auth_response.json()
+                        print(f"API Gateway: User data received: {user_data}")
                         username = user_data.get("username")
+                        # Если username null или пустой, используем first_name как fallback
+                        if not username or username.strip() == "":
+                            username = user_data.get("first_name") or user_data.get("last_name") or None
                         if username:
-                            headers["X-Username"] = username
-                except Exception:
+                            headers["X-Username"] = str(username)
+                            print(f"API Gateway: Setting X-Username header to '{username}' for user_id {user_id}")
+                        else:
+                            print(f"API Gateway: Warning - Username is null/empty for user_id {user_id}, user_data: {user_data}")
+                    else:
+                        print(f"API Gateway: Failed to get user {user_id}, status: {auth_response.status_code}, response: {auth_response.text}")
+                except Exception as e:
                     # Если не удалось получить username, продолжаем без него
-                    pass
+                    print(f"API Gateway: Error getting username for user_id {user_id}: {e}")
+                    import traceback
+                    print(traceback.format_exc())
 
         # Обработка multipart/form-data для загрузки файлов
         # Для multipart передаем raw body напрямую, так как Django может не парсить его автоматически

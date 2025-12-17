@@ -4,6 +4,7 @@ from paintings.models import Painting
 class PaintingService:
     @staticmethod
     def create_painting(user_id, username, validated_data):
+        print(f"PaintingService.create_painting: user_id={user_id}, username={username}")
         painting = Painting.objects.create(
             user_id=user_id,
             username=username,
@@ -14,4 +15,5 @@ class PaintingService:
             status="pending",
             is_public=True,  # По умолчанию публикуем в ленту
         )
+        print(f"PaintingService: Created painting {painting.painting_id} with username={painting.username}")
         return painting

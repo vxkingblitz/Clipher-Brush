@@ -19,6 +19,8 @@ class PaintingCreateView(APIView):
         user_id = request.headers.get("X-User-Id")
         username = request.headers.get("X-Username")
         
+        print(f"PaintingCreateView: Received user_id={user_id}, username={username}")
+        
         # Логируем что пришло
         print(f"Request data keys: {list(request.data.keys())}")
         print(f"Request FILES keys: {list(request.FILES.keys()) if hasattr(request, 'FILES') else 'No FILES'}")
