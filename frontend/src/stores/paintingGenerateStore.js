@@ -13,7 +13,7 @@ export const useGeneratorStore = defineStore('generator', {
         async generatePainting(payload) {
             const response = await this._makeRequest({
                 url: '/paintings/',
-                method: 'GET',
+                method: 'POST',
                 data: payload
             })
             this.paintingsList = response.data.results
