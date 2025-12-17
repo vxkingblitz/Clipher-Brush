@@ -33,44 +33,16 @@ export const useRequestsStore = defineStore('requests', {
                     },
                 })
 
-                // Проверка формата ответа: если пришел формат {status, title, messages}
-                // и status указывает на ошибку, обрабатываем как ошибку
                 const responseData = response.data
-                if (responseData && typeof responseData === 'object' && 'status' in responseData) {
-                    const status = responseData.status
-                    // Если status >= 400, это ошибка
-                    if (status >= 400) {
-                        const errorMessage = this._formatErrorMessage(responseData)
-                        
-                        // Проверка на ошибку невалидного токена доступа
-                        if (errorMessage === 'Невалидный токен доступа' || errorMessage.includes('Невалидный токен доступа')) {
-                            const authStore = useAuthStore()
-                            authStore.logout()
-                            router.push('/auth')
-                            throw new Error(errorMessage)
-                        }
-                        
-                        const alertsStore = useAlertsStore()
-                        alertsStore.showNotification({
-                            message: errorMessage,
-                            status: 'error'
-                        })
-                        throw new Error(errorMessage)
-                    }
-                }
 
-                if (successMessage) {
-                    const alertsStore = useAlertsStore()
-                    alertsStore.showNotification({
-                        message: successMessage,
-                        status: 'success'
-                    })
-                }
+                alert(response.data);
+                
 
                 return responseData
             } catch (error) {
                 const alertsStore = useAlertsStore()
                 let errorMessage = 'Произошла ошибка'
+                alert(error.message);
 
                 if (error.response?.data && typeof error.response.data === 'object') {
                     const errorData = error.response.data
