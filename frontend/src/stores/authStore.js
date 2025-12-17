@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', {
         async _makeRequest(config, errorMessage, successMessage) {
             const requestsStore = useRequestsStore()
             try {
-            return await requestsStore._makeRequest(config, successMessage)
+                return await requestsStore._makeRequest(config, successMessage)
             } catch (error) {
             if (errorMessage) {
                 throw new Error(errorMessage)
@@ -40,16 +40,18 @@ export const useAuthStore = defineStore('auth', {
                 const tokens = await this._makeRequest({
                     method: 'post',
                     url: 'auth/telegram/',
-                    init_data: initData
+                    data: {
+                        init_data: initData
+                    }
                 }, "auth failed")
 
-                this.token = response.data.access_token;
-                this.user = { user_id: response.data.user_id };
+                this.token = tokens.access_token;
+                this.user = { user_id: tokens.user_id };
                 
                 localStorage.setItem('tg_token', this.token);
                 localStorage.setItem('tg_user', JSON.stringify(this.user));
                 
-                return response.data;
+                return tokens;
             } catch (error) {
                 console.error('Login error:', error);
                 throw error;
