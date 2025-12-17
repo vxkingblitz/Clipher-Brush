@@ -4,7 +4,7 @@ import { useRequestsStore } from './requestsStore'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        token: localStorage.getItem('tg_token') || null,
+        token: null,
         user: null,
         isLoading: false
     }),
@@ -62,16 +62,6 @@ export const useAuthStore = defineStore('auth', {
 
         async initialize() {
             try {
-                // Если токен уже есть (например, из предыдущей сессии), просто восстановим данные пользователя
-                const savedToken = localStorage.getItem('tg_token');
-                const savedUser = localStorage.getItem('tg_user');
-
-                if (savedToken && savedUser) {
-                    this.token = savedToken;
-                    this.user = JSON.parse(savedUser);
-                    return;
-                }
-
                 await this.login();
             } catch (error) {
                 throw new Error(error);

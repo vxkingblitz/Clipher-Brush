@@ -29,7 +29,7 @@ export default {
       await authStore.initialize();
 
       setTimeout(() => {
-        if (authStore.user) {
+        if (authStore.user.user_id !== null) {
           isAppLoaded.value = true;
           router.push({ name: 'Feed', params: { tab: 'all' } });
         }
