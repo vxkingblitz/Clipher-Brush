@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axiosInstance from '../plugins/axios';
+import { useRequestsStore } from './requestsStore'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -9,6 +10,19 @@ export const useAuthStore = defineStore('auth', {
     }),
 
     actions: {
+        async _makeRequest(config, errorMessage, successMessage) {
+            const requestsStore = useRequestsStore()
+            try {
+            return await requestsStore._makeRequest(config, successMessage)
+            } catch (error) {
+            if (errorMessage) {
+                throw new Error(errorMessage)
+            }
+            throw error
+            }
+        },
+
+
         async login() {
             try {
                 this.isLoading = true;
@@ -23,11 +37,11 @@ export const useAuthStore = defineStore('auth', {
                     throw new Error('Telegram initData not available');
                 }
 
-                // Авторизация через бэкенд: создаем/обновляем пользователя и получаем JWT
-                // Внешний URL: https://cipherbrush.ru/api/auth/auth/telegram/
-                const response = await axiosInstance.post('/auth/auth/telegram/', {
+                const tokens = await this._makeRequest({
+                    method: 'post',
+                    url: 'auth/auth/telegram/',
                     init_data: initData
-                });
+                }, "auth failed")
 
                 this.token = response.data.access_token;
                 this.user = { user_id: response.data.user_id };
