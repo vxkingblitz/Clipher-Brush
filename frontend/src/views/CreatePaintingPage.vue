@@ -116,7 +116,7 @@ export default {
                 markers_set_id: this.formData.markers_set,
                 colors_amount: this.formData.colors_amount,
             }
-            return this.profileStore.generatePainting(payload);
+            this.profileStore.generatePainting(payload);
         },
     },
     beforeUnmount() {
@@ -125,7 +125,7 @@ export default {
         }
     },
     computed: {
-        ...mapStores(useProfileStore),
+        ...mapStores(useGeneratorStore),
     },
 }
 </script>
