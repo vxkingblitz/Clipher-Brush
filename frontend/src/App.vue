@@ -3,10 +3,12 @@
     
     <RouterView/>
     <NavBar v-if="isAppLoaded"/>
+    <Notification/>
   </div>
 </template>
 
 <script>
+import { useAlertsStore } from './stores/alertsStore';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
@@ -15,6 +17,7 @@ export default {
   name: 'App',
   setup() {
     const authStore = useAuthStore();
+    const alertsStore = useAlertsStore();
     const isAppLoaded = ref(false);
     const router = useRouter();
 

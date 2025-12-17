@@ -22,6 +22,7 @@ const _axios = axios.create(config);
 _axios.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore();
+    console.log(authStore.token);
     if (authStore.token) {
       config.headers["Authorization"] = `Bearer ${authStore.token}`;
     }

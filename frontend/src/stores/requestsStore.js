@@ -34,15 +34,12 @@ export const useRequestsStore = defineStore('requests', {
                 })
 
                 const responseData = response.data
-
-                alert(response.data);
                 
 
                 return responseData
             } catch (error) {
                 const alertsStore = useAlertsStore()
                 let errorMessage = 'Произошла ошибка'
-                alert(error.message);
 
                 if (error.response?.data && typeof error.response.data === 'object') {
                     const errorData = error.response.data
@@ -55,13 +52,6 @@ export const useRequestsStore = defineStore('requests', {
                     }
                 } else if (error.message) {
                     errorMessage = error.message
-                }
-
-                if (errorMessage === 'Невалидный токен доступа' || errorMessage.includes('Невалидный токен доступа')) {
-                    const authStore = useAuthStore()
-                    authStore.logout()
-                    router.push('/auth')
-                    throw error
                 }
 
                 alertsStore.showNotification({

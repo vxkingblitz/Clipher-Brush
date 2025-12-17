@@ -11,6 +11,7 @@ import ButtonComponent from "./components/ui/ButtonComponent.vue";
 import InputField from "./components/ui/TextField.vue";
 import SelectList from "./components/ui/SelectList.vue";
 import SkeletonLoader from "./components/ui/SkeletonLoader.vue";
+import Notification from "./components/ui/NotificationsBanner.vue";
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -23,6 +24,7 @@ app.component('ButtonComponent', ButtonComponent);
 app.component('InputField', InputField);
 app.component('SelectList', SelectList);
 app.component('SkeletonLoader', SkeletonLoader);
+app.component('Notification', Notification);
 
 app.use(pinia)
 app.use(router)

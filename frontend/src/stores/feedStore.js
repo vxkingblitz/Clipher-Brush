@@ -8,9 +8,8 @@ export const useFeedStore = defineStore('feed', {
     }),
     actions: {
         async _makeRequest(config, successMessage = null) {
-            // const requestsStore = useRequestsStore()
-            // return requestsStore._makeRequest(config, successMessage, false)
-            return 0
+            const requestsStore = useRequestsStore()
+            return requestsStore._makeRequest(config, successMessage, false)
         },
         async getPaintingsList() {
             const response = await this._makeRequest({
