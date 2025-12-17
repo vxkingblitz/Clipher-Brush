@@ -2,24 +2,18 @@
   <div id="pageView" class="feedWrapper">
     <h1>Добро пожаловать<br>в страну раскрасок!</h1>
 
-    <div style="display: flex; gap: 6px; align-items: center; padding: 16px 6px;" v-if="loadingFeed">
+    <div style="display: flex; gap: 6px; align-items: center; padding: 16px 6px;" v-if="loadingFeed || categories.length == 0">
         <SkeletonLoader style="width: 150px; height: 38px;" />
         <SkeletonLoader style="width: 80px; height: 38px;" />
         <SkeletonLoader style="width: 200px; height: 38px;" />
-        <SkeletonLoader style="width: 70px; height: 38px;" />
+        <SkeletonLoader style="width: 140px; height: 38px;" />
     </div>
 
     <TabMenu
         v-else
         style="position: sticky; top: 0; z-index: 1; background-color: var(--color-white);"
         v-model="menuTab" 
-        :tabs="[
-            { id: 'all', label: 'Все' },
-            { id: 'new', label: 'Новые' },
-            { id: 'in_progress', label: 'В работе' },
-            { id: 'completed', label: 'Выполненные' },
-            { id: 'canceled', label: 'Отмененные' },
-        ]" 
+        :tabs="categories" 
         @tab-change="val => setTab(val)"
     />
 

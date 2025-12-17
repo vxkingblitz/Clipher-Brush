@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', {
                 localStorage.setItem('tg_token', this.token);
                 localStorage.setItem('tg_user', JSON.stringify(this.user));
                 
-                await router.push({ name: 'Feed', params: { tab: 'all' } });
+                // await router.push({ name: 'Feed', params: { tab: 'all' } });
                 
                 return response;
             } catch (error) {
