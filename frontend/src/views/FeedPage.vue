@@ -9,13 +9,15 @@
         <SkeletonLoader style="width: 140px; height: 38px;" />
     </div>
 
-    <TabMenu
+    <!-- <TabMenu
         v-else
         style="position: sticky; top: 0; z-index: 1; background-color: var(--color-white);"
         v-model="menuTab" 
         :tabs="categories" 
         @tab-change="val => setTab(val)"
-    />
+    /> -->
+
+    {{ categories }}
 
     <section class="feed-content" v-if="loadingFeed">
         <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
