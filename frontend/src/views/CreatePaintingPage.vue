@@ -110,22 +110,21 @@ export default {
             }
         },
         async generatePainting(){
-            // Преобразуем markers_set из строки в ID или null
-            // Если выбрано "Без набора", передаем null
-            let markers_set_id = null;
-            if (this.formData.markers_set && this.formData.markers_set !== 'Без набора') {
-                // Здесь можно добавить маппинг строк в ID, если нужно
-                // Пока передаем null, если не "Без набора"
-                markers_set_id = null; // TODO: добавить маппинг строк в реальные ID из БД
-            }
-            
+            // Формируем payload только с валидными значениями
             let payload = {
                 photo: this.formData.photo,
-                // Не передаем category_id если он 0 или не выбран
-                ...(this.formData.category_id && this.formData.category_id > 0 ? { category_id: this.formData.category_id } : {}),
-                ...(markers_set_id ? { markers_set_id: markers_set_id } : {}),
                 colors_amount: parseInt(this.formData.colors_amount) || 0,
             }
+            
+            // Добавляем category_id только если он есть и больше 0
+            if (this.formData.category_id && parseInt(this.formData.category_id) > 0) {
+                payload.category_id = parseInt(this.formData.category_id);
+            }
+            
+            // Добавляем markers_set_id только если он есть и валидный
+            // Пока markers_set - это строка из списка, нужно будет загружать реальные ID из API
+            // Временно не передаем markers_set_id, будет использоваться дефолтная палитра
+            // TODO: загрузить markers-sets из API и использовать реальные ID
             
             console.log('Sending payload:', payload);
             

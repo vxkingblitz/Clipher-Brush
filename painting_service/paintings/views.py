@@ -33,23 +33,45 @@ class PaintingCreateView(APIView):
             except (ValueError, TypeError) as e:
                 print(f"Error converting colors_amount: {e}, value: {data.get('colors_amount')}")
         
-        if 'markers_set_id' in data and data['markers_set_id']:
-            try:
-                # Преобразуем в int, но если это 0 или пустая строка, ставим None
-                markers_set_id = int(data['markers_set_id'])
-                data['markers_set_id'] = markers_set_id if markers_set_id > 0 else None
-            except (ValueError, TypeError) as e:
-                print(f"Error converting markers_set_id: {e}, value: {data.get('markers_set_id')}")
+        if 'markers_set_id' in data:
+            markers_set_id_val = data['markers_set_id']
+            # Обрабатываем случаи: None, 'undefined', '', 0, пустой список
+            if not markers_set_id_val or markers_set_id_val == 'undefined' or markers_set_id_val == '':
                 data['markers_set_id'] = None
+            else:
+                try:
+                    # Если это список (QueryDict), берем первый элемент
+                    if isinstance(markers_set_id_val, list):
+                        markers_set_id_val = markers_set_id_val[0] if markers_set_id_val else None
+                    
+                    if markers_set_id_val and markers_set_id_val != 'undefined' and markers_set_id_val != '':
+                        markers_set_id = int(markers_set_id_val)
+                        data['markers_set_id'] = markers_set_id if markers_set_id > 0 else None
+                    else:
+                        data['markers_set_id'] = None
+                except (ValueError, TypeError) as e:
+                    print(f"Error converting markers_set_id: {e}, value: {markers_set_id_val}")
+                    data['markers_set_id'] = None
         
         if 'category_id' in data:
-            try:
-                # Если category_id = 0, ставим None (так как 0 не валидный ID)
-                category_id = int(data['category_id'])
-                data['category_id'] = category_id if category_id > 0 else None
-            except (ValueError, TypeError) as e:
-                print(f"Error converting category_id: {e}, value: {data.get('category_id')}")
+            category_id_val = data['category_id']
+            # Обрабатываем случаи: None, 'undefined', '', 0, пустой список
+            if not category_id_val or category_id_val == 'undefined' or category_id_val == '':
                 data['category_id'] = None
+            else:
+                try:
+                    # Если это список (QueryDict), берем первый элемент
+                    if isinstance(category_id_val, list):
+                        category_id_val = category_id_val[0] if category_id_val else None
+                    
+                    if category_id_val and category_id_val != 'undefined' and category_id_val != '':
+                        category_id = int(category_id_val)
+                        data['category_id'] = category_id if category_id > 0 else None
+                    else:
+                        data['category_id'] = None
+                except (ValueError, TypeError) as e:
+                    print(f"Error converting category_id: {e}, value: {category_id_val}")
+                    data['category_id'] = None
 
         print(f"Processed data: {data}")
         print(f"Photo in data: {'photo' in data}")
@@ -69,11 +91,11 @@ class PaintingCreateView(APIView):
         )
 
         try:
-            markers_set_id = request.data.get("markers_set_id")
+            markers_set_id = data.get("markers_set_id")  # Используем обработанные данные
             palette = None
             
             # Получаем палитру из catalog_service по markers_set_id
-            if markers_set_id:
+            if markers_set_id and markers_set_id != 'undefined':
                 import requests as req
                 try:
                     catalog_response = req.get(
@@ -83,10 +105,15 @@ class PaintingCreateView(APIView):
                     if catalog_response.status_code == 200:
                         markers_set = catalog_response.json()
                         palette = markers_set.get("colors_data", [])
+                        print(f"Loaded palette from markers_set_id {markers_set_id}: {len(palette)} colors")
+                    else:
+                        print(f"Failed to get markers set: status {catalog_response.status_code}")
                 except Exception as e:
                     # Если не удалось получить палитру, используем None (дефолтная палитра)
                     print(f"Failed to get markers set: {e}")
                     palette = None
+            else:
+                print("No markers_set_id provided, using default palette")
             
             # Если палитра не получена, передаем None - image_processor использует дефолтную PALETTE_OBJECTS
             result = MlClient.process_painting(painting, palette)
