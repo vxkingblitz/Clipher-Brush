@@ -13,14 +13,14 @@ export const useFeedStore = defineStore('feed', {
         },
         async getPaintingsList() {
             const response = await this._makeRequest({
-                url: '/paintings/',
+                url: '/paintings/feed/',
                 method: 'GET',
             })
             this.paintingsList = response.data.results
         },
         async getCategoriesList() {
             const response = await this._makeRequest({
-                url: '/categories/',
+                url: '/catalog/categories/',
                 method: 'GET',
             })
             this.categoriesList = response.data.results

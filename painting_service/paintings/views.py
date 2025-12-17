@@ -110,8 +110,8 @@ class SavePaintingView(APIView):
 class MyPaintgsListView(ListAPIView):
     serializer_class = PaintingResponseSerializer
 
-    def get_gueryset(self):
-        user_id = self.request.headers.get("X-User-id")
+    def get_queryset(self):
+        user_id = self.request.headers.get("X-User-Id")
         return Painting.objects.filter(user_id=user_id).order_by("-generated_at")
     
 

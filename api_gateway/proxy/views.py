@@ -3,9 +3,9 @@ from django.http import HttpResponse
 
 
 SERVICE_URLS = {
-    "auth": "http://auth-service:8000",
-    "paintings": "http://painting-service:8000",
-    "catalog": "http://catalog-service:8000",
+    "auth": "http://auth-service:8001",
+    "paintings": "http://painting-service:8002",
+    "catalog": "http://catalog-service:8003",
 }
 
 
@@ -24,6 +24,12 @@ class ProxyView:
             for key, value in request.headers.items()
             if key.lower() != "host"
         }
+
+        # Прокидываем user_id из JWT в микросервисы через заголовок,
+        # чтобы они могли понимать, от какого пользователя пришел запрос
+        user_id = getattr(request, "user_id", None)
+        if user_id is not None:
+            headers["X-User-Id"] = str(user_id)
 
         response = requests.request(
             method=request.method,

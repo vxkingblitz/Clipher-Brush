@@ -14,14 +14,14 @@ export const useProfileStore = defineStore('profile', {
         },
         async getFavouritePaintingsList() {
             const response = await this._makeRequest({
-                url: '/paintings/',
+                url: '/paintings/my/',
                 method: 'GET',
             })
             this.paintingsList = response.data.results
         },
         async getMyPaintingsList() {
             const response = await this._makeRequest({
-                url: '/paintings/',
+                url: '/paintings/my/',
                 method: 'GET',
             })
             this.paintingsList = response.data.results
