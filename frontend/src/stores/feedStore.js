@@ -33,7 +33,10 @@ export const useFeedStore = defineStore('feed', {
                 url: '/catalog/categories/',
                 method: 'GET',
             })
-            this.categoriesList = response.data.results
+            // CategoryListView возвращает массив напрямую через Response(serializer.data)
+            // _makeRequest уже возвращает response.data, поэтому response - это массив категорий
+            this.categoriesList = Array.isArray(response) ? response : []
+            console.log('Categories list loaded:', this.categoriesList)
         },
         async getPainting(id) {
             const response = await this._makeRequest({
