@@ -27,7 +27,7 @@
     </div>
 
     <section class="feed-content" v-if="paintings.length > 0 && !loadingFeed">
-        <PaintingCard id="pageView" v-for="i in 10" :key="i.id"/>
+        <PaintingCard v-for="painting in paintings" :key="painting.painting_id" :painting="painting"/>
     </section>
   </div>
 </template>

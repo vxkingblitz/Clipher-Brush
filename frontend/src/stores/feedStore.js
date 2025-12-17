@@ -17,7 +17,9 @@ export const useFeedStore = defineStore('feed', {
                 url: '/paintings/feed/',
                 method: 'GET',
             })
-            this.paintingsList = response.data.results
+            // DRF ListAPIView возвращает результаты напрямую или в results
+            this.paintingsList = response.results || response.data?.results || response || []
+            console.log('Paintings list loaded:', this.paintingsList)
         },
         async getPaintingsMyList() {
             const response = await this._makeRequest({

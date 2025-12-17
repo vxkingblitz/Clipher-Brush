@@ -52,9 +52,18 @@
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <h4>Генерация изображения</h4>
             <div class="loadingStatusWrapper">
-                <div class="loadingStatusActive" style="width: 60%;"></div>
+                <div class="loadingStatusActive" :style="{ width: loadingProgress + '%' }"></div>
             </div>
-            <span>Подбираем цвета...</span>
+            <span>{{ loadingText }}</span>
+        </div>
+
+        <div id="pageView" class="createContent" v-if="step == 4">
+            <img class="imagePreview resultImage" :src="resultImage" alt="result">
+            <h4>Раскраска готова!</h4>
+            <div class="actions">
+                <ButtonComponent :variant="1" :label="'В ленту'" @click="goToFeed()" :isLoading="false"/>
+                <ButtonComponent :variant="3" :label="'Создать ещё'" @click="resetForm()" :isLoading="false"/>
+            </div>
         </div>
     </div>
 </template>
@@ -68,6 +77,10 @@ export default {
         return{
             photoPreview: null,
             step: 1,
+            loadingProgress: 0,
+            loadingText: 'Подбираем цвета...',
+            resultImage: null,
+            createdPainting: null,
 
             formData:{
                 photo: null,
@@ -128,14 +141,66 @@ export default {
             
             console.log('Sending payload:', payload);
             
+            // Запускаем анимацию загрузки
+            this.startLoadingAnimation();
+            
             try {
-                await this.generatorStore.generatePainting(payload);
-                this.step = 4; // Переход на шаг "Все готово"
+                const result = await this.generatorStore.generatePainting(payload);
+                console.log('Generation result:', result);
+                
+                this.createdPainting = result;
+                // Используем colored или numbered изображение для показа результата
+                this.resultImage = result.painting_colored || result.painting_numbered || this.photoPreview;
+                
+                this.loadingProgress = 100;
+                this.loadingText = 'Готово!';
+                
+                setTimeout(() => {
+                    this.step = 4; // Переход на шаг "Все готово"
+                }, 500);
             } catch (error) {
                 console.error('Ошибка генерации:', error);
                 alert('Произошла ошибка при создании раскраски');
                 this.step = 2; // Возврат на шаг выбора параметров
             }
+        },
+        startLoadingAnimation() {
+            this.loadingProgress = 0;
+            this.loadingText = 'Загружаем изображение...';
+            
+            const stages = [
+                { progress: 20, text: 'Анализируем цвета...' },
+                { progress: 40, text: 'Подбираем палитру...' },
+                { progress: 60, text: 'Создаём контуры...' },
+                { progress: 80, text: 'Нумеруем области...' },
+                { progress: 95, text: 'Финальная обработка...' },
+            ];
+            
+            let stageIndex = 0;
+            const interval = setInterval(() => {
+                if (stageIndex < stages.length && this.step === 3) {
+                    this.loadingProgress = stages[stageIndex].progress;
+                    this.loadingText = stages[stageIndex].text;
+                    stageIndex++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 2000);
+        },
+        goToFeed() {
+            this.$router.push({ name: 'Feed', params: { tab: 'all' } });
+        },
+        resetForm() {
+            this.step = 1;
+            this.photoPreview = null;
+            this.resultImage = null;
+            this.createdPainting = null;
+            this.loadingProgress = 0;
+            this.formData = {
+                photo: null,
+                colors_amount: '',
+                markers_set: '',
+            };
         },
     },
     beforeUnmount() {
@@ -173,12 +238,19 @@ span{
     position: absolute;
     height: 20px;
     background-color: var(--color-main);
+    transition: width 0.5s ease-out;
 }
 .imagePreview{
     object-fit: cover;
     width: 50vw;
     height: 40vh;
     border-radius: 32px;
+}
+.resultImage{
+    width: 80vw;
+    height: auto;
+    max-height: 60vh;
+    object-fit: contain;
 }
 .actions{
     width: 314px;
