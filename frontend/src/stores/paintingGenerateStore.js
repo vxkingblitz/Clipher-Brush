@@ -28,5 +28,17 @@ export const useGeneratorStore = defineStore('generator', {
             this.painting_id = response.painting_id
             return response
         },
+        async publishPainting(paintingId, categoryId = null) {
+            const payload = {}
+            if (categoryId) {
+                payload.category_id = categoryId
+            }
+            const response = await this._makeRequest({
+                url: `/paintings/${paintingId}/publish/`,
+                method: 'POST',
+                data: payload
+            })
+            return response
+        },
     },
 })

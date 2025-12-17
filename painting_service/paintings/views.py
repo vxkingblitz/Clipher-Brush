@@ -277,6 +277,17 @@ class PublishPaintingView(APIView):
                 404
             )
 
+        # Обрабатываем category_id если он передан
+        if 'category_id' in request.data:
+            category_id_val = request.data.get('category_id')
+            if category_id_val and category_id_val != 'undefined' and category_id_val != '':
+                try:
+                    category_id = int(category_id_val)
+                    if category_id > 0:
+                        painting.category_id = category_id
+                except (ValueError, TypeError):
+                    pass  # Если не удалось преобразовать, оставляем текущее значение
+
         painting.is_public = True
         painting.save()
 

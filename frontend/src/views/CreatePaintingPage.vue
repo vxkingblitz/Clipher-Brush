@@ -61,6 +61,32 @@
             <img class="imagePreview resultImage" :src="resultImage" alt="result">
             <h4>Раскраска готова!</h4>
             <div class="actions">
+                <div class="checkbox-wrapper">
+                    <input 
+                        type="checkbox" 
+                        id="publishCheckbox" 
+                        v-model="shouldPublish"
+                        @change="handleHapticFeedback()"
+                    />
+                    <label for="publishCheckbox">Опубликовать?</label>
+                </div>
+                
+                <div v-if="shouldPublish" class="publish-section">
+                    <SelectList
+                        :options="categoriesOptions"
+                        :searchable="false"
+                        :placeholderdata="'Выберите категорию'"
+                        v-model="selectedCategory"
+                    />
+                    <ButtonComponent 
+                        :variant="1" 
+                        :label="'Опубликовать'" 
+                        @click="handlePublish()" 
+                        :isLoading="isPublishing"
+                        :disabled="!selectedCategory"
+                    />
+                </div>
+                
                 <ButtonComponent :variant="1" :label="'В ленту'" @click="goToFeed()" :isLoading="false"/>
                 <ButtonComponent :variant="3" :label="'Создать ещё'" @click="resetForm()" :isLoading="false"/>
             </div>
@@ -70,6 +96,7 @@
 
 <script>
 import { useGeneratorStore } from '../stores/paintingGenerateStore'
+import { useFeedStore } from '../stores/feedStore'
 import { mapStores } from 'pinia'
 
 export default {
@@ -81,6 +108,9 @@ export default {
             loadingText: 'Подбираем цвета...',
             resultImage: null,
             createdPainting: null,
+            shouldPublish: false,
+            selectedCategory: null,
+            isPublishing: false,
 
             formData:{
                 photo: null,
@@ -155,8 +185,10 @@ export default {
                 this.loadingProgress = 100;
                 this.loadingText = 'Готово!';
                 
-                setTimeout(() => {
+                setTimeout(async () => {
                     this.step = 4; // Переход на шаг "Все готово"
+                    // Загружаем категории при переходе на шаг 4
+                    await this.loadCategories();
                 }, 500);
             } catch (error) {
                 console.error('Ошибка генерации:', error);
@@ -196,11 +228,60 @@ export default {
             this.resultImage = null;
             this.createdPainting = null;
             this.loadingProgress = 0;
+            this.shouldPublish = false;
+            this.selectedCategory = null;
+            this.isPublishing = false;
             this.formData = {
                 photo: null,
                 colors_amount: '',
                 markers_set: '',
             };
+        },
+        async loadCategories() {
+            try {
+                await this.feedStore.getCategoriesList();
+            } catch (error) {
+                console.error('Ошибка загрузки категорий:', error);
+            }
+        },
+        async handlePublish() {
+            if (!this.selectedCategory || !this.createdPainting) {
+                return;
+            }
+            
+            this.isPublishing = true;
+            this.handleHapticFeedback();
+            
+            try {
+                // Получаем category_id из выбранной категории
+                // selectedCategory может быть объектом {category_id, name} или просто category_id
+                let categoryId = null;
+                if (typeof this.selectedCategory === 'object' && this.selectedCategory !== null) {
+                    categoryId = this.selectedCategory.category_id;
+                } else {
+                    categoryId = this.selectedCategory;
+                }
+                
+                if (!categoryId) {
+                    alert('Пожалуйста, выберите категорию');
+                    this.isPublishing = false;
+                    return;
+                }
+                
+                await this.generatorStore.publishPainting(
+                    this.createdPainting.painting_id,
+                    categoryId
+                );
+                
+                alert('Раскраска успешно опубликована!');
+                this.shouldPublish = false;
+                this.selectedCategory = null;
+            } catch (error) {
+                console.error('Ошибка публикации:', error);
+                alert('Произошла ошибка при публикации раскраски');
+            } finally {
+                this.isPublishing = false;
+            }
         },
     },
     beforeUnmount() {
@@ -210,6 +291,19 @@ export default {
     },
     computed: {
         ...mapStores(useGeneratorStore),
+        ...mapStores(useFeedStore),
+        categoriesOptions() {
+            // Преобразуем список категорий в формат для SelectList
+            // SelectList использует getOptionKey который ищет option?.id, поэтому используем id
+            if (!this.feedStore.categoriesList || this.feedStore.categoriesList.length === 0) {
+                return [];
+            }
+            return this.feedStore.categoriesList.map(cat => ({
+                id: cat.category_id,
+                category_id: cat.category_id,
+                name: cat.name
+            }));
+        },
     },
 }
 </script>
@@ -301,5 +395,42 @@ span{
     font-weight: 400;
     font-size: 12px;
     margin: 24px 0 10px 0
+}
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+}
+.checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--color-main);
+}
+.checkbox-wrapper label {
+    font-family: 'Jost';
+    font-size: 16px;
+    color: var(--color-black);
+    cursor: pointer;
+    user-select: none;
+}
+.publish-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
