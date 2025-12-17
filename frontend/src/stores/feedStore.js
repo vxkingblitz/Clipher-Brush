@@ -33,7 +33,7 @@ export const useFeedStore = defineStore('feed', {
                 url: '/catalog/categories/',
                 method: 'GET',
             })
-            this.categoriesList = response.data
+            this.categoriesList = response.data.results
         },
         async getPainting(id) {
             const response = await this._makeRequest({

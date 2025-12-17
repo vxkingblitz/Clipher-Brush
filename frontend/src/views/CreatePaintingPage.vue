@@ -293,16 +293,7 @@ export default {
         ...mapStores(useGeneratorStore),
         ...mapStores(useFeedStore),
         categoriesOptions() {
-            // Преобразуем список категорий в формат для SelectList
-            // SelectList использует getOptionKey который ищет option?.id, поэтому используем id
-            if (!this.feedStore.categoriesList || this.feedStore.categoriesList.length === 0) {
-                return [];
-            }
-            return this.feedStore.categoriesList.map(cat => ({
-                id: cat.category_id,
-                category_id: cat.category_id,
-                name: cat.name
-            }));
+            return this.feedStore.categoriesList
         },
     },
 }
