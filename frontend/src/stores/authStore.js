@@ -39,7 +39,7 @@ export const useAuthStore = defineStore('auth', {
 
                 const tokens = await this._makeRequest({
                     method: 'post',
-                    url: 'auth/auth/telegram/',
+                    url: 'auth/telegram/',
                     init_data: initData
                 }, "auth failed")
 
