@@ -14,6 +14,8 @@
         style="position: sticky; top: 0; z-index: 1; background-color: var(--color-white);"
         v-model="menuTab" 
         :tabs="categories" 
+        tab-key="category_id"
+        tab-label="name"
         @tab-change="val => setTab(val)"
     />
 

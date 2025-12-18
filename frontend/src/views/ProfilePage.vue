@@ -23,7 +23,7 @@
         </div>
 
         <section class="feed-content" v-if="favouritePaintingsList.length > 0 && !loadingFavourites">
-            <PaintingCard id="pageView" v-for="i in 10" :key="i.id"/>
+            <PaintingCard id="pageView" v-for="painting in favouritePaintingsList" :key="painting.painting_id" :painting="painting"/>
         </section>
     </div>
 
@@ -38,7 +38,7 @@
         </div>
 
         <section class="feed-content" v-if="paintingsListMy.length > 0 && !loadingMy">
-            <PaintingCard id="pageView" v-for="i in 10" :key="i.id"/>
+            <PaintingCard id="pageView" v-for="painting in paintingsListMy" :key="painting.painting_id" :painting="painting"/>
         </section>
     </div>
     

@@ -4,25 +4,23 @@
             <slot name="before-tabs"></slot>
             <button 
                 v-for="tab in tabs" 
-                :key="tab.id"
-                @click="setActiveTab(tab.id)"
-                :style="getTabStyle(tab.id)"
+                :key="getTabKey(tab)"
+                @click="setActiveTab(tab)"
+                :style="getTabStyle(tab)"
                 class="tab-button"
             >
-                <slot name="tab-content" :tab="tab" :isActive="isTabActive(tab.id)">
-                    <span class="tab-label">{{ tab.label }}</span>
+                <slot name="tab-content" :tab="tab" :isActive="isTabActive(tab)">
+                    <span class="tab-label">{{ getTabLabel(tab) }}</span>
                 </slot>
             </button>
             <slot name="after-tabs"></slot>
         </div>
     </div>
-    
 </template>
 
 <script>
 export default {
     name: 'TabsMenu',
-    
     props: {
         tabs: {
             type: Array,
@@ -32,47 +30,61 @@ export default {
                 { id: 'tab2', label: 'Вкладка 2' },
                 { id: 'tab3', label: 'Вкладка 3' },
             ],
-            validator: (value) => {
-                return value.every(tab => tab.id && tab.label)
-            }
         },
-
         modelValue: {
-            type: String,
-            default: 'tabname'
+            // Можно строкой или числом или объектом (любой тип)
+            default: null
         },
+        tabKey: {
+            // Ключ для идентификации вкладки (например: 'id', 'category_id')
+            type: String,
+            default: 'id'
+        },
+        tabLabel: {
+            // Ключ для отображения названия вкладки (например: 'label', 'name')
+            type: String,
+            default: 'label'
+        }
     },
-    
     emits: ['update:modelValue', 'tab-change'],
-    
     data() {
         return {
-            activeTab: this.modelValue
+            active: this.modelValue
         }
     },
-    
     watch: {
         modelValue(newVal) {
-            this.activeTab = newVal
+            this.active = newVal
         }
     },
-    
     methods: {
-        setActiveTab(tabId) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            this.activeTab = tabId
-            this.$emit('update:modelValue', tabId)
-            this.$emit('tab-change', tabId)
+        getTabKey(tab) {
+            // Возвращает значение уникального ключа вкладки
+            return tab[this.tabKey] ?? tab.id ?? tab.category_id ?? tab.name ?? JSON.stringify(tab);
         },
-        
-        isTabActive(tabId) {
-            return this.activeTab === tabId
+        getTabLabel(tab) {
+            // Возвращает отображаемый лейбл вкладки
+            return tab[this.tabLabel] ?? tab.label ?? tab.name ?? '';
         },
-        
-        getTabStyle(tabId) {
+        setActiveTab(tab) {
+            window?.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light');
+            this.active = tab;
+            this.$emit('update:modelValue', tab);
+            this.$emit('tab-change', tab);
+        },
+        isTabActive(tab) {
+            // Сравнивает текущую активную вкладку
+            if (typeof this.active === 'object' && this.active !== null) {
+                // Если модель — объект, сравниваем по уникальному ключу
+                return this.getTabKey(tab) == this.getTabKey(this.active);
+            } else {
+                return this.getTabKey(tab) == this.active;
+            }
+        },
+        getTabStyle(tab) {
             return {
-                color: this.isTabActive(tabId) ? 'var(--color-white)' : 'var(--color-black)',
-                backgroundColor: this.isTabActive(tabId) ? 'var(--color-main)' : 'var(--color-white)'
+                color: this.isTabActive(tab) ? 'var(--color-white)' : 'var(--color-black)',
+                backgroundColor: this.isTabActive(tab) ? 'var(--color-main)' : 'var(--color-white)'
             }
         }
     }
