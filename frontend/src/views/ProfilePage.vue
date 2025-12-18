@@ -23,7 +23,7 @@
         </div>
 
         <section class="feed-content" v-if="favouritePaintingsList.length > 0 && !loadingFavourites">
-            <PaintingCard id="pageView" v-for="painting in favouritePaintingsList" :key="painting.painting_id" :painting="painting"/>
+            <PaintingCard v-for="painting in favouritePaintingsList" :key="painting.painting_id" :painting="painting"/>
         </section>
     </div>
 
@@ -38,7 +38,7 @@
         </div>
 
         <section class="feed-content" v-if="paintingsListMy.length > 0 && !loadingMy">
-            <PaintingCard id="pageView" v-for="painting in paintingsListMy" :key="painting.painting_id" :painting="painting"/>
+            <PaintingCard v-for="painting in paintingsListMy" :key="painting.painting_id" :painting="painting"/>
         </section>
     </div>
     
@@ -63,21 +63,21 @@ export default {
         setTimeout(() => {
             this.profileStore.getFavouritePaintingsList()
             this.loadingFavourites = false;
-        }, 1000);
-
-        setTimeout(() => {
             this.profileStore.getMyPaintingsList()
             this.loadingMy = false;
-        }, 1000);
+        }, 1000)
     },
     methods:{
         setTab(tab) {
+            this.loadingFavourites = true;
+            this.loadingMy = true;
             if(tab == 'favourites') {
                 this.profileStore.getFavouritePaintingsList()
             } else {
                 this.profileStore.getMyPaintingsList()
             }
-            this.profileStore.getMyPaintingsList()
+            this.loadingFavourites = false;
+            this.loadingMy = false;
             this.$router.push({ name: 'Profile', params: { tab } })
         },
     },

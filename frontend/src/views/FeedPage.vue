@@ -65,7 +65,9 @@ export default {
     },
     methods:{
         setTab(tab) {
+            this.loadingFeed = true;
             this.feedStore.getPaintingsList(tab.category_id)
+            this.loadingFeed = false;
             this.$router.push({ name: 'Feed', params: { tab } })
         },
     }

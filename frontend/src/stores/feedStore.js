@@ -16,9 +16,9 @@ export const useFeedStore = defineStore('feed', {
             const response = await this._makeRequest({
                 url: '/paintings/feed/',
                 method: 'GET',
-                data: {
+                data: category_id ? {
                     category_id: category_id
-                }
+                } : null,
             })
             // DRF ListAPIView возвращает результаты напрямую или в results
             this.paintingsList = response.results || response.data?.results || response || []
