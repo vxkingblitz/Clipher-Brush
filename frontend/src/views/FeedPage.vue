@@ -2,11 +2,8 @@
   <div id="pageView" class="feedWrapper">
     <h1>Добро пожаловать<br>в страну раскрасок!</h1>
 
-    <div style="display: flex; gap: 6px; align-items: center; padding: 16px 6px;" v-if="loadingFeed || categories.length == 0">
-        <SkeletonLoader style="width: 150px; height: 38px;" />
-        <SkeletonLoader style="width: 80px; height: 38px;" />
-        <SkeletonLoader style="width: 200px; height: 38px;" />
-        <SkeletonLoader style="width: 140px; height: 38px;" />
+    <div style="display: flex; gap: 6px; align-items: center; padding: 16px 6px;" v-if="loadingCategories || categories.length == 0">
+        <SkeletonLoader v-for="n in 4" :key="n" style="width: 150px; height: 38px;" />
     </div>
 
     <TabMenu
@@ -42,19 +39,22 @@ import { mapStores } from 'pinia'
 export default {
     data(){
         return{
-            menuTab: 'all',
+            menuTab: { category_id: null, name: 'Все' },
             loadingFeed: false,
+            loadingCategories: false,
         }
     },
     async mounted() {
         this.loadingFeed = true;
+        this.loadingCategories = true;
         try {
             await this.feedStore.getCategoriesList();
-            await this.feedStore.getPaintingsList(); // Без category_id - все картины
+            await this.feedStore.getPaintingsList();
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
         } finally {
             this.loadingFeed = false;
+            this.loadingCategories = false;
         }
     },
     computed: {
@@ -63,7 +63,6 @@ export default {
             return this.feedStore.paintingsList;
         },
         categories(){
-            // Добавляем вкладку "Все" в начало списка
             const allTab = { category_id: null, name: 'Все' };
             return [allTab, ...this.feedStore.categoriesList];
         },
