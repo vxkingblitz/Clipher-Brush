@@ -447,7 +447,11 @@ def add_legend_to_image(main_image, used_palette_idxs, selected_colors_bgr, map_
         
         # Текст рядом с квадратом
         palette_info = map_palette_to_num[pal_idx]
-        text = f"{palette_info['number']} - {palette_info['code']}"
+        # Если есть код, показываем "номер - код", иначе только номер
+        if 'code' in palette_info:
+            text = f"{palette_info['number']} - {palette_info['code']}"
+        else:
+            text = str(palette_info['number'])
         text_x = x + rect_size + 5
         text_y = y + (rect_size - text_height) // 2
         
@@ -499,7 +503,11 @@ def create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_n
         
         # Текст под квадратом
         palette_info = map_palette_to_num[pal_idx]
-        text = f"{palette_info['number']} - {palette_info['code']}"
+        # Если есть код, показываем "номер - код", иначе только номер
+        if 'code' in palette_info:
+            text = f"{palette_info['number']} - {palette_info['code']}"
+        else:
+            text = str(palette_info['number'])
         text_bbox = legend_draw.textbbox((0, 0), text, font=legend_font)
         text_width = text_bbox[2] - text_bbox[0]
         text_x = x + (rect_size - text_width) // 2
@@ -556,7 +564,15 @@ def main():
     next_sub_id = 0
     subregion_centroids = {}
     used_palette_idxs = sorted(list(set(clean_idx.flatten())))
-    map_palette_to_num = {old_idx:{'number':i+1,'code':selected_objects[old_idx]['code']} for i,old_idx in enumerate(used_palette_idxs)}
+    # Проверяем, есть ли коды в палитре (если используется набор маркеров)
+    has_codes = any('code' in obj for obj in selected_objects if isinstance(obj, dict))
+    map_palette_to_num = {}
+    for i, old_idx in enumerate(used_palette_idxs):
+        palette_info = {'number': i+1}
+        # Добавляем код только если он есть в объекте палитры
+        if has_codes and isinstance(selected_objects[old_idx], dict) and 'code' in selected_objects[old_idx]:
+            palette_info['code'] = selected_objects[old_idx]['code']
+        map_palette_to_num[old_idx] = palette_info
 
     for pal_idx in used_palette_idxs:
         mask = (clean_idx==pal_idx).astype(np.uint8)
