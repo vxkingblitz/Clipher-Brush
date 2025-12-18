@@ -48,7 +48,8 @@ export const useFeedStore = defineStore('feed', {
                 url: `/paintings/${id}/`,
                 method: 'GET',
             })
-            return response.data
+            // DRF RetrieveAPIView возвращает данные напрямую или в data
+            return response.data || response
         }
     },
 })

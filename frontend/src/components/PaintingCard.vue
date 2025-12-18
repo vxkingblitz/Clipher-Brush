@@ -1,5 +1,5 @@
 <template>
-    <div class="paintingCardWrapper">
+    <div class="paintingCardWrapper" @click="handleClick">
       <img :src="imageUrl" alt="painting" @error="handleImageError">
       <div class="paintingCard-bottom">
           <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,16 +34,20 @@
       methods: {
           resolveImageUrl(painting) {
               if (!painting) return '';
-              if (painting.painting_colored && typeof painting.painting_colored === 'string') {
-                  if (painting.painting_colored.startsWith('http')) {
-                      return painting.painting_colored;
+              // Показываем исходник (photo) вместо раскрашенного
+              if (painting.photo && typeof painting.photo === 'string') {
+                  if (painting.photo.startsWith('http')) {
+                      return painting.photo;
                   }
-                  return 'https://cipherbrush.ru' + painting.painting_colored;
+                  return 'https://cipherbrush.ru' + painting.photo;
               }
               return '';
           },
           handleImageError(e) {
               e.target.src = 'https://via.placeholder.com/300x300?text=Error';
+          },
+          handleClick() {
+              this.$router.push({ name: 'PaintingDetail', params: { id: this.painting.painting_id } });
           }
       }
   }
@@ -67,6 +71,11 @@
     height: 294px;
     border-radius: 32px;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.paintingCardWrapper:hover {
+    transform: scale(1.02);
 }
 .nickname{
     font-size: 12px;

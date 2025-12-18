@@ -26,7 +26,7 @@ export default {
 
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        // window.Telegram.WebApp.expand();
       }
 
       await authStore.initialize();

@@ -59,6 +59,7 @@ class PaintingResponseSerializer(serializers.ModelSerializer):
 
 
 class PublicPaintingSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
     painting_numbered = serializers.SerializerMethodField()
     painting_colored = serializers.SerializerMethodField()
 
@@ -68,12 +69,16 @@ class PublicPaintingSerializer(serializers.ModelSerializer):
             "painting_id",
             "user_id",
             "username",
+            "photo",
             "painting_numbered",
             "painting_colored",
             "generated_at",
             "category_id",
             "colors_amount",
         ]
+
+    def get_photo(self, obj):
+        return get_media_url(obj.photo.url if obj.photo else None)
 
     def get_painting_numbered(self, obj):
         return get_media_url(obj.painting_numbered.url if obj.painting_numbered else None)

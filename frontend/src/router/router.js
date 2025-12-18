@@ -24,6 +24,12 @@ const routes = [
     component: () => import('../views/ProfilePage.vue'),
     props: true
   },
+  {
+    path: '/painting/:id',
+    name: 'PaintingDetail',
+    component: () => import('../views/PaintingDetailPage.vue'),
+    props: true
+  },
 ]
 
 const router = createRouter({
