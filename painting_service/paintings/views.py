@@ -154,8 +154,9 @@ class PaintingCreateView(APIView):
                             painting.painting_numbered.save(
                                 file_name,
                                 ContentFile(f.read()),
-                                save=False
+                                save=True
                             )
+                            print(f"Saved numbered image to: {painting.painting_numbered.path}")
                     else:
                         # Файл находится в общем volume image_processing_service
                         # Путь в image_processing_service: /app/media/output/{job_id}/numbered.png
@@ -178,8 +179,9 @@ class PaintingCreateView(APIView):
                                 painting.painting_numbered.save(
                                     file_name,
                                     ContentFile(f.read()),
-                                    save=False
+                                    save=True
                                 )
+                                print(f"Saved numbered image to: {painting.painting_numbered.path}")
                         else:
                             raise Exception(f"Numbered image not accessible. Tried: {numbered_path}, {alt_path}")
                 except Exception as e:
@@ -198,8 +200,9 @@ class PaintingCreateView(APIView):
                             painting.painting_colored.save(
                                 file_name,
                                 ContentFile(f.read()),
-                                save=False
+                                save=True
                             )
+                            print(f"Saved colored image to: {painting.painting_colored.path}")
                     else:
                         # Аналогично для colored image
                         if '/media/' in colored_path:
@@ -215,8 +218,9 @@ class PaintingCreateView(APIView):
                                 painting.painting_colored.save(
                                     file_name,
                                     ContentFile(f.read()),
-                                    save=False
+                                    save=True
                                 )
+                                print(f"Saved colored image to: {painting.painting_colored.path}")
                         else:
                             raise Exception(f"Colored image not accessible. Tried: {colored_path}, {alt_path}")
                 except Exception as e:
@@ -227,6 +231,7 @@ class PaintingCreateView(APIView):
             
             painting.status = "completed"
             painting.save()
+            print(f"Painting {painting.painting_id} saved. Numbered: {painting.painting_numbered.name if painting.painting_numbered else 'None'}, Colored: {painting.painting_colored.name if painting.painting_colored else 'None'}")
             print(f"Painting {painting.painting_id} successfully processed")
 
         except Exception as e:
