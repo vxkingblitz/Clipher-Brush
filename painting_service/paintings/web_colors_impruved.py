@@ -129,7 +129,7 @@ PALETTE_OBJECTS = [
     { 'id': 107, 'colorHex': '#AE9E6D', 'code': '646' },
     { 'id': 108, 'colorHex': '#BEB079', 'code': '626' },
     { 'id': 109, 'colorHex': '#B6AE97', 'code': '736' },
-    { 'id': 110, 'colorHex': '#C99865', 'code': '704' },
+    { 'id': 100, 'colorHex': '#C99865', 'code': '704' },
 
     { 'id': 111, 'colorHex': '#B29796', 'code': '744' },
     { 'id': 112, 'colorHex': '#BDA287', 'code': '624' },
@@ -142,9 +142,8 @@ PALETTE_OBJECTS = [
     { 'id': 118, 'colorHex': '#47837B', 'code': '819' },
     { 'id': 119, 'colorHex': '#A68784', 'code': '734' },
     { 'id': 120, 'colorHex': '#BC8C88', 'code': '658' },
+
 ]
-
-
 import os
 import math
 import numpy as np
@@ -154,15 +153,20 @@ from sklearn.cluster import MiniBatchKMeans
 from scipy.interpolate import splprep, splev
 from scipy.spatial import cKDTree
 
-# ================== ПАРАМЕТРЫ ПО УМОЛЧАНИЮ ==================
-DEFAULT_SLIC_SEGMENTS = 70000
-DEFAULT_SLIC_COMPACTNESS = 0.2
-DEFAULT_MIN_REGION_AREA = 550 
-DEFAULT_LINE_COLOR = (230, 230, 230)
-DEFAULT_LINE_THICKNESS = 1
-DEFAULT_SCALE_MAX = 3000
-DEFAULT_MAX_COLORS = 20
-DEFAULT_COLOR_TRESHHOLD = 50
+# ================== ПАРАМЕТРЫ ==================
+SLIC_SEGMENTS = 70000
+SLIC_COMPACTNESS = 0.2
+MIN_REGION_AREA = 550
+LINE_COLOR = (230, 230, 230)
+LINE_THICKNESS = 1
+SCALE_MAX = 3000
+MAX_COLORS = 40
+COLOR_TRESHHOLD = 20
+FONT_PATH = "Montserrat.ttf"
+OUT_DIR = "output"
+INPUT = "newyork.jpg"
+
+os.makedirs(OUT_DIR, exist_ok=True)
 
 # ================== УТИЛИТЫ ==================
 def resize_max_side(img, max_side):
@@ -181,7 +185,7 @@ def hex_to_bgr(hex_str):
     b = int(h[4:6],16)
     return (b,g,r)
 
-def extract_dominant_colors(image, n_colors, color_threshold=DEFAULT_COLOR_TRESHHOLD):
+def extract_dominant_colors(image, n_colors, color_threshold=COLOR_TRESHHOLD):
     pixels = image.reshape(-1, 3)
     sample_size = min(5000, len(pixels))
     indices = np.random.choice(len(pixels), sample_size, replace=False)
@@ -385,7 +389,10 @@ def add_legend_to_image(main_image, used_palette_idxs, selected_colors_bgr, map_
         if font_path:
             legend_font = ImageFont.truetype(font_path, legend_font_size)
         else:
-            legend_font = ImageFont.load_default()
+            try:
+                legend_font = ImageFont.truetype(FONT_PATH, legend_font_size)
+            except:
+                legend_font = ImageFont.load_default()
     except:
         legend_font = ImageFont.load_default()
     
@@ -417,7 +424,7 @@ def add_legend_to_image(main_image, used_palette_idxs, selected_colors_bgr, map_
     
     return result_image_bgr
 
-def create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_num, image_height, font_path=None):
+def create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_num, image_height):
     """Создает отдельное изображение легенды"""
     legend_padding = 10
     rect_size = max(30, int(image_height * 0.03))
@@ -440,10 +447,7 @@ def create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_n
     # Используем меньший шрифт для легенды
     legend_font_size = 22
     try:
-        if font_path:
-            legend_font = ImageFont.truetype(font_path, legend_font_size)
-        else:
-            legend_font = ImageFont.load_default()
+        legend_font = ImageFont.truetype(FONT_PATH, legend_font_size)
     except:
         legend_font = ImageFont.load_default()
     
@@ -474,126 +478,61 @@ def create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_n
     
     return legend_image_bgr
 
-# ================== MAIN FUNCTION ==================
-def process_image(
-    input_image_path: str,
-    output_numbered_path: str,
-    output_colored_path: str,
-    output_legend_path: str,
-    palette_objects: list = None,
-    max_colors: int = None,
-    scale_max: int = None,
-    slic_segments: int = None,
-    slic_compactness: float = None,
-    min_region_area: int = None,
-    line_color: tuple = None,
-    line_thickness: int = None,
-    color_threshold: int = None,
-    font_path: str = None
-):
-    """
-    Обрабатывает изображение и создает раскраску по номерам.
-    
-    Args:
-        input_image_path: Путь к входному изображению
-        output_numbered_path: Путь для сохранения изображения с номерами
-        output_colored_path: Путь для сохранения цветного изображения
-        output_legend_path: Путь для сохранения легенды
-        palette_objects: Список объектов палитры с полями 'id', 'colorHex', 'code'
-        max_colors: Максимальное количество цветов (по умолчанию DEFAULT_MAX_COLORS)
-        scale_max: Максимальный размер стороны изображения (по умолчанию DEFAULT_SCALE_MAX)
-        slic_segments: Количество сегментов для SLIC (по умолчанию DEFAULT_SLIC_SEGMENTS)
-        slic_compactness: Компактность SLIC (по умолчанию DEFAULT_SLIC_COMPACTNESS)
-        min_region_area: Минимальная площадь региона (по умолчанию DEFAULT_MIN_REGION_AREA)
-        line_color: Цвет линий (по умолчанию DEFAULT_LINE_COLOR)
-        line_thickness: Толщина линий (по умолчанию DEFAULT_LINE_THICKNESS)
-        color_threshold: Порог для объединения цветов (по умолчанию DEFAULT_COLOR_TRESHHOLD)
-        font_path: Путь к шрифту (опционально, используется дефолтный если не указан)
-    
-    Returns:
-        dict: Словарь с путями к созданным файлам
-    """
-    # Используем переданную палитру или дефолтную
-    if palette_objects is None:
-        palette_objects = PALETTE_OBJECTS
-    
-    if not palette_objects:
-        raise ValueError("palette_objects пуст. Нужно заполнить список словарей с 'colorHex', 'code', 'id'")
-    
-    # Устанавливаем параметры по умолчанию если не указаны
-    max_colors = max_colors or DEFAULT_MAX_COLORS
-    scale_max = scale_max or DEFAULT_SCALE_MAX
-    slic_segments = slic_segments or DEFAULT_SLIC_SEGMENTS
-    slic_compactness = slic_compactness or DEFAULT_SLIC_COMPACTNESS
-    min_region_area = min_region_area or DEFAULT_MIN_REGION_AREA
-    line_color = line_color or DEFAULT_LINE_COLOR
-    line_thickness = line_thickness or DEFAULT_LINE_THICKNESS
-    color_threshold = color_threshold or DEFAULT_COLOR_TRESHHOLD
-    
-    # Загружаем изображение
-    img_bgr = cv2.imread(input_image_path)
-    if img_bgr is None:
-        raise FileNotFoundError(f"File {input_image_path} not found")
-    
-    img_bgr = resize_max_side(img_bgr, scale_max)
-    h, w = img_bgr.shape[:2]
+# ================== MAIN ==================
+def main():
+    if not PALETTE_OBJECTS:
+        raise ValueError("PALETTE_OBJECTS пуст. Нужно заполнить список словарей с 'colorHex', 'code', 'id'")
 
-    # Извлекаем доминирующие цвета
-    dominant_colors = extract_dominant_colors(img_bgr, max_colors, color_threshold)
-    selected_colors_bgr, selected_objects, _ = find_closest_palette_colors(dominant_colors, palette_objects)
+    img_bgr = cv2.imread(INPUT)
+    if img_bgr is None:
+        raise FileNotFoundError(f"File {INPUT} not found")
+    img_bgr = resize_max_side(img_bgr, SCALE_MAX)
+    h,w = img_bgr.shape[:2]
+
+    dominant_colors = extract_dominant_colors(img_bgr, MAX_COLORS)
+    selected_colors_bgr, selected_objects, _ = find_closest_palette_colors(dominant_colors, PALETTE_OBJECTS)
     palette = np.array(selected_colors_bgr, dtype=np.uint8)
     K_COLORS = len(palette)
 
-    # SLIC сегментация
-    slic = cv2.ximgproc.createSuperpixelSLIC(
-        img_bgr, 
-        algorithm=cv2.ximgproc.SLICO,
-        region_size=max(5, int(math.sqrt(h * w / max(1, slic_segments)))),
-        ruler=float(slic_compactness)
-    )
+    # SLIC
+    slic = cv2.ximgproc.createSuperpixelSLIC(img_bgr, algorithm=cv2.ximgproc.SLICO,
+                                             region_size=max(5,int(math.sqrt(h*w/max(1,SLIC_SEGMENTS)))),
+                                             ruler=float(SLIC_COMPACTNESS))
     slic.iterate(10)
     labels_slic = slic.getLabels().astype(np.int32)
 
     # Цвета суперпикселей
     flat_labels = labels_slic.ravel()
-    b = img_bgr[:,:,0].ravel()
-    g = img_bgr[:,:,1].ravel()
-    r = img_bgr[:,:,2].ravel()
+    b = img_bgr[:,:,0].ravel(); g=img_bgr[:,:,1].ravel(); r = img_bgr[:,:,2].ravel()
     counts = np.bincount(flat_labels, minlength=int(labels_slic.max())+1).astype(np.float32)
-    counts_safe = counts.copy()
-    counts_safe[counts_safe==0] = 1.0
-    mean_colors = np.stack([
-        np.bincount(flat_labels, weights=b)/counts_safe,
-        np.bincount(flat_labels, weights=g)/counts_safe,
-        np.bincount(flat_labels, weights=r)/counts_safe
-    ], axis=1)
+    counts_safe = counts.copy(); counts_safe[counts_safe==0]=1.0
+    mean_colors = np.stack([np.bincount(flat_labels, weights=b)/counts_safe,
+                            np.bincount(flat_labels, weights=g)/counts_safe,
+                            np.bincount(flat_labels, weights=r)/counts_safe],axis=1)
     diffs = np.linalg.norm(mean_colors[:,None,:]-palette[None,:,:].astype(np.float32), axis=2)
     best_idx_per_label = np.argmin(diffs, axis=1).astype(np.int32)
     idx_img = best_idx_per_label[labels_slic]
 
     # Переприсваиваем маленькие регионы по палитрам до построения subregion
-    clean_idx = reassign_small_regions(idx_img, K_COLORS, min_region_area)
+    clean_idx = reassign_small_regions(idx_img, K_COLORS, MIN_REGION_AREA)
     clean_color_img = palette[clean_idx]
 
     # Создаем subregion_idx
-    subregion_idx = -1 * np.ones_like(clean_idx, dtype=np.int32)
+    subregion_idx = -1*np.ones_like(clean_idx, dtype=np.int32)
     next_sub_id = 0
     subregion_centroids = {}
     used_palette_idxs = sorted(list(set(clean_idx.flatten())))
-    map_palette_to_num = {
-        old_idx: {'number': i+1, 'code': selected_objects[old_idx]['code']} 
-        for i, old_idx in enumerate(used_palette_idxs)
-    }
+    map_palette_to_num = {old_idx:{'number':i+1,'code':selected_objects[old_idx]['code']} for i,old_idx in enumerate(used_palette_idxs)}
 
     for pal_idx in used_palette_idxs:
-        mask = (clean_idx == pal_idx).astype(np.uint8)
-        if mask.sum() == 0:
+        mask = (clean_idx==pal_idx).astype(np.uint8)
+        if mask.sum()==0:
             continue
         n_comp, labels_cc, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
-        for lab in range(1, n_comp):
+        for lab in range(1,n_comp):
             area = stats[lab, cv2.CC_STAT_AREA]
-            comp_mask = (labels_cc == lab)
-            if area < min_region_area:
+            comp_mask = (labels_cc==lab)
+            if area < MIN_REGION_AREA:
                 best_neigh = find_best_neighbor(clean_idx, comp_mask, exclude_color=pal_idx, max_iter=6)
                 if best_neigh is not None:
                     clean_idx[comp_mask] = best_neigh
@@ -615,59 +554,49 @@ def process_image(
                     ys, xs = np.nonzero(comp_mask)
                     cx, cy = int(xs.mean()), int(ys.mean())
 
-            subregion_centroids[next_sub_id] = (cx, cy, pal_idx)
+            subregion_centroids[next_sub_id] = (cx,cy,pal_idx)
             next_sub_id += 1
 
     # Рисуем сплайновые заливки и линии
-    colored_spline_img, line_art_spline = draw_spline_contours(
-        subregion_idx, 
-        clean_color_img, 
-        line_color=line_color, 
-        thickness=line_thickness
-    )
+    colored_spline_img, line_art_spline = draw_spline_contours(subregion_idx, clean_color_img, line_color=LINE_COLOR, thickness=LINE_THICKNESS)
 
     # PIL для текста
     numbered_pil = Image.fromarray(cv2.cvtColor(line_art_spline.copy(), cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(numbered_pil)
     font_size = 12
     try:
-        if font_path:
-            font = ImageFont.truetype(font_path, font_size)
-        else:
-            font = ImageFont.load_default()
+        font = ImageFont.truetype(FONT_PATH,font_size)
     except:
         font = ImageFont.load_default()
 
-    for sub_id, (cx, cy, pal_idx) in subregion_centroids.items():
-        palette_info = map_palette_to_num.get(pal_idx, {'number': 0, 'code': '000'})
+    for sub_id,(cx,cy,pal_idx) in subregion_centroids.items():
+        palette_info = map_palette_to_num.get(pal_idx,{'number':0,'code':'000'})
         text = str(palette_info['number'])
-        bbox = draw.textbbox((0, 0), text, font=font)
-        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        bbox = draw.textbbox((0,0), text, font=font)
+        tw,th = bbox[2]-bbox[0], bbox[3]-bbox[1]
         pos = (int(cx - tw//2), int(cy - th//2))
         shadow_pos = (pos[0]+1, pos[1]+1)
-        draw.text(shadow_pos, text, fill=(200, 200, 200), font=font)
-        draw.text(pos, text, fill=(70, 70, 70), font=font)
+        draw.text(shadow_pos, text, fill=(200,200,200), font=font)
+        draw.text(pos, text, fill=(70,70,70), font=font)
 
     # Создаем отдельное изображение для легенды (для обратной совместимости)
-    legend_image = create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_num, h, font_path)
+    legend_image = create_legend_image(used_palette_idxs, selected_colors_bgr, map_palette_to_num, h)
     
     # Создаем финальное изображение с легендой внизу
     main_image_bgr = cv2.cvtColor(np.array(numbered_pil), cv2.COLOR_RGB2BGR)
     # Добавляем легенду прямо внизу изображения с цифрами
-    final_image = add_legend_to_image(main_image_bgr, used_palette_idxs, selected_colors_bgr, map_palette_to_num, font_path)
+    final_image = add_legend_to_image(main_image_bgr, used_palette_idxs, selected_colors_bgr, map_palette_to_num)
     
-    # Создаем директории для выходных файлов если их нет
-    os.makedirs(os.path.dirname(output_numbered_path), exist_ok=True)
-    os.makedirs(os.path.dirname(output_colored_path), exist_ok=True)
-    os.makedirs(os.path.dirname(output_legend_path), exist_ok=True)
+    # Сохраняем результаты в отдельные файлы
+    cv2.imwrite(os.path.join(OUT_DIR, "numbered_spline.png"), final_image)
+    cv2.imwrite(os.path.join(OUT_DIR, "legend.jpg"), legend_image)  # Легенда в отдельный JPG файл
+    cv2.imwrite(os.path.join(OUT_DIR, "colored_spline_image.png"), colored_spline_img)
     
-    # Сохраняем результаты
-    cv2.imwrite(output_numbered_path, final_image)
-    cv2.imwrite(output_legend_path, legend_image)
-    cv2.imwrite(output_colored_path, colored_spline_img)
-    
-    return {
-        "numbered_image": output_numbered_path,
-        "colored_image": output_colored_path,
-        "legend_image": output_legend_path,
-    }
+    print("Сохранено:")
+    print("- numbered_spline.png: сплайновое изображение с линиями и серой рамкой")
+    print("- legend.jpg: легенда с цветами в отдельном файле")
+    print("- colored_spline_image.png: цветное сплайновое изображение")
+    print("Все файлы сохранены в папку:", OUT_DIR)
+
+if __name__ == "__main__":
+    main()

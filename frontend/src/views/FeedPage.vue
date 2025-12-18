@@ -82,7 +82,7 @@ export default {
                     this.loadingFeed = false;
                 });
                 this.$router.push({ name: 'Feed', params: { tab } })
-            }, 2000);
+            }, 300);
             
             
         },
