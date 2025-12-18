@@ -12,10 +12,13 @@ export const useFeedStore = defineStore('feed', {
             const requestsStore = useRequestsStore()
             return requestsStore._makeRequest(config, successMessage, false)
         },
-        async getPaintingsList() {
+        async getPaintingsList(category_id = null) {
             const response = await this._makeRequest({
                 url: '/paintings/feed/',
                 method: 'GET',
+                data: {
+                    category_id: category_id
+                }
             })
             // DRF ListAPIView возвращает результаты напрямую или в results
             this.paintingsList = response.results || response.data?.results || response || []
@@ -33,8 +36,6 @@ export const useFeedStore = defineStore('feed', {
                 url: '/catalog/categories/',
                 method: 'GET',
             })
-            // CategoryListView возвращает массив напрямую через Response(serializer.data)
-            // _makeRequest уже возвращает response.data, поэтому response - это массив категорий
             this.categoriesList = Array.isArray(response) ? response : []
             console.log('Categories list loaded:', this.categoriesList)
         },

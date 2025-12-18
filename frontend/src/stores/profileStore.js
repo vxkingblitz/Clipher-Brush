@@ -17,14 +17,14 @@ export const useProfileStore = defineStore('profile', {
                 url: '/paintings/my/',
                 method: 'GET',
             })
-            this.paintingsList = response.data.results
+            this.favouritePaintingsList = response.results || response.data?.results || response || []
         },
         async getMyPaintingsList() {
             const response = await this._makeRequest({
                 url: '/paintings/my/',
                 method: 'GET',
             })
-            this.paintingsList = response.data.results
+            this.paintingsList = response.results || response.data?.results || response || []
         },
     },
 })
