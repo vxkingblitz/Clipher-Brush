@@ -191,6 +191,7 @@ export default {
 }
 
 .download-button {
+  margin-bottom: 110px;
   min-width: 250px;
 }
 

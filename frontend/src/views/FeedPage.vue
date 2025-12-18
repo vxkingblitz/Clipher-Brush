@@ -74,14 +74,17 @@ export default {
             const categoryId = (typeof tab === 'object' && tab !== null && tab.category_id !== undefined) 
                 ? tab.category_id 
                 : null;
+
+            setTimeout(() => {
+                this.feedStore.getPaintingsList(categoryId).then(() => {
+                    this.loadingFeed = false;
+                }).catch(() => {
+                    this.loadingFeed = false;
+                });
+                this.$router.push({ name: 'Feed', params: { tab } })
+            }, 2000);
             
-            this.feedStore.getPaintingsList(categoryId).then(() => {
-                this.loadingFeed = false;
-            }).catch(() => {
-                this.loadingFeed = false;
-            });
             
-            this.$router.push({ name: 'Feed', params: { tab } })
         },
     }
 }
