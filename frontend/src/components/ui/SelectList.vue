@@ -219,8 +219,14 @@ export default {
     getOptionName(option) {
       if (!option) return '';
       
-      const name = option?.name ?? option;
-      return String(name)
+      // Поддержка разных форматов опций
+      if (typeof option === 'string') {
+        return option;
+      }
+      if (typeof option === 'object') {
+        return option?.name ?? option?.label ?? option?.value ?? String(option);
+      }
+      return String(option);
     },
     
     highlightMatch(optionName) {

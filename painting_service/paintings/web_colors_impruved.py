@@ -351,17 +351,46 @@ def add_legend_to_image(main_image, used_palette_idxs, selected_colors_bgr, map_
     
     # Параметры легенды
     legend_padding = 15
-    rect_size = max(25, int(h * 0.025))  # Размер квадрата
-    text_height = int(rect_size * 0.7)
-    spacing = 8  # Расстояние между элементами
     frame_thickness = 1
+    num_colors = len(used_palette_idxs)
+    
+    # Адаптивные параметры в зависимости от количества цветов
+    if num_colors <= 15:
+        # Мало цветов - можно сделать крупнее
+        rect_size = max(30, int(h * 0.03))
+        items_per_row = min(8, num_colors)
+        spacing = 10
+        text_font_scale = 0.6
+    elif num_colors <= 30:
+        # Среднее количество - средний размер
+        rect_size = max(25, int(h * 0.025))
+        items_per_row = min(10, num_colors)
+        spacing = 8
+        text_font_scale = 0.5
+    elif num_colors <= 50:
+        # Много цветов - компактнее
+        rect_size = max(20, int(h * 0.02))
+        items_per_row = min(12, num_colors)
+        spacing = 6
+        text_font_scale = 0.45
+    else:
+        # Очень много цветов - очень компактно
+        rect_size = max(18, int(h * 0.018))
+        items_per_row = min(15, num_colors)
+        spacing = 5
+        text_font_scale = 0.4
+    
+    text_height = int(rect_size * text_font_scale)
     
     # Рассчитываем размеры легенды
-    items_per_row = min(10, len(used_palette_idxs))  # Максимум 10 элементов в строке
-    num_rows = (len(used_palette_idxs) + items_per_row - 1) // items_per_row
+    num_rows = (num_colors + items_per_row - 1) // items_per_row
     
     # Ширина одного элемента (квадрат + текст)
-    legend_item_width = rect_size + 80
+    # Для компактного режима уменьшаем ширину текста
+    if num_colors > 30:
+        legend_item_width = rect_size + 60
+    else:
+        legend_item_width = rect_size + 80
     
     # Высота легенды
     legend_height = num_rows * (rect_size + text_height + spacing) + 2 * legend_padding
@@ -383,8 +412,13 @@ def add_legend_to_image(main_image, used_palette_idxs, selected_colors_bgr, map_
     result_pil = Image.fromarray(result_image)
     draw = ImageDraw.Draw(result_pil)
     
-    # Шрифт для легенды
-    legend_font_size = max(14, int(rect_size * 0.5))
+    # Шрифт для легенды (адаптивный)
+    if num_colors > 50:
+        legend_font_size = max(10, int(rect_size * 0.4))
+    elif num_colors > 30:
+        legend_font_size = max(12, int(rect_size * 0.45))
+    else:
+        legend_font_size = max(14, int(rect_size * 0.5))
     try:
         if font_path:
             legend_font = ImageFont.truetype(font_path, legend_font_size)

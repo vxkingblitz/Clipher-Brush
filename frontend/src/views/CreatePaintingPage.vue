@@ -39,10 +39,11 @@
                     v-model="formData.colors_amount"
                 />
                 <SelectList
-                    :options="markers_list"
+                    :options="markersSetsOptions"
                     :searchable="false"
                     :placeholderdata="'Выберите набор маркеров'"
                     v-model="formData.markers_set"
+                    :disabled="markersSetsLoading"
                 />
                 <ButtonComponent :variant="1" :label="'Создать раскраску'" @click="handleHapticFeedback(); step = 3; generatePainting()" :isLoading="false" :disabled="!formData.colors_amount || !formData.markers_set"/>
             </div>
@@ -115,20 +116,8 @@ export default {
             formData:{
                 photo: null,
                 colors_amount: '',
-                markers_set: '',
+                markers_set: null,
             },
-
-            markers_list:[
-                'Без набора',
-                'GuangNa, 240шт',
-                'GuangNa, 120шт',
-                'GuangNa, 64шт',
-                'GuangNa, 32шт',
-                'Languo , 240шт',
-                'Languo , 120шт',
-                'Languo , 64шт',
-                'Languo , 32шт',
-            ]
         }
     },
     methods: {
@@ -165,9 +154,26 @@ export default {
             }
             
             // Добавляем markers_set_id только если он есть и валидный
-            // Пока markers_set - это строка из списка, нужно будет загружать реальные ID из API
-            // Временно не передаем markers_set_id, будет использоваться дефолтная палитра
-            // TODO: загрузить markers-sets из API и использовать реальные ID
+            // formData.markers_set - это объект из markersSetsOptions (с полями id, name, value)
+            let markersSetId = null;
+            if (this.formData.markers_set) {
+                // Если это объект с полем value (наш формат)
+                if (this.formData.markers_set.value && this.formData.markers_set.value.markers_set_id) {
+                    markersSetId = this.formData.markers_set.value.markers_set_id;
+                } 
+                // Если это прямой объект набора маркеров
+                else if (this.formData.markers_set.markers_set_id !== undefined) {
+                    markersSetId = this.formData.markers_set.markers_set_id;
+                }
+                // Если markers_set_id равен null, это означает "Без набора"
+                else if (this.formData.markers_set.markers_set_id === null) {
+                    markersSetId = null; // Явно не передаем markers_set_id
+                }
+            }
+            // Передаем markers_set_id только если он не null
+            if (markersSetId !== null && markersSetId !== undefined) {
+                payload.markers_set_id = markersSetId;
+            }
             
             console.log('Sending payload:', payload);
             
@@ -234,7 +240,7 @@ export default {
             this.formData = {
                 photo: null,
                 colors_amount: '',
-                markers_set: '',
+                markers_set: null,
             };
         },
         async loadCategories() {
@@ -295,6 +301,22 @@ export default {
         categoriesOptions() {
             return this.feedStore.categoriesList
         },
+        markersSetsOptions() {
+            return this.generatorStore.markersSets.map(set => ({
+                id: set.markers_set_id || 'none',
+                name: set.markers_set_id 
+                    ? `${set.brand_name}, ${set.colors_amount}шт`
+                    : set.brand_name,
+                value: set  // Сохраняем весь объект для использования
+            }))
+        },
+        markersSetsLoading() {
+            return this.generatorStore.markersSetsLoading
+        },
+    },
+    async mounted() {
+        // Загружаем наборы маркеров при монтировании компонента
+        await this.generatorStore.getMarkersSets()
     },
 }
 </script>
