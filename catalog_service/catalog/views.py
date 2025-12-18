@@ -6,7 +6,7 @@ from .serializers import CategorySerializer, MarkersSetSerializer
 
 
 class CategoryListView(APIView):
-    def get(self, request, category_id=None):
+    def get(self, request, category_id = None):
         if category_id is not None:
             category = get_object_or_404(Category, pk=category_id)
             serializer = CategorySerializer(category)

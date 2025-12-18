@@ -13,13 +13,17 @@ export const useFeedStore = defineStore('feed', {
             return requestsStore._makeRequest(config, successMessage, false)
         },
         async getPaintingsList(category_id = null) {
-            const response = await this._makeRequest({
+            // Для GET запросов используем params (query параметры), а не data
+            const config = {
                 url: '/paintings/feed/',
                 method: 'GET',
-                data: category_id ? {
-                    category_id: category_id
-                } : null,
-            })
+            }
+            
+            if (category_id) {
+                config.params = { category_id: category_id }
+            }
+            
+            const response = await this._makeRequest(config)
             // DRF ListAPIView возвращает результаты напрямую или в results
             this.paintingsList = response.results || response.data?.results || response || []
             console.log('Paintings list loaded:', this.paintingsList)

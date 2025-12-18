@@ -21,7 +21,7 @@
 
 
     <section class="feed-content" v-if="loadingFeed">
-        <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
+        <SkeletonLoader v-for="n in 6" :key="n" style="width: 100%; height: 294px;" />
     </section>
 
     <div class="messageBox" v-if="paintings.length == 0 && !loadingFeed">
@@ -46,13 +46,16 @@ export default {
             loadingFeed: false,
         }
     },
-    mounted() {
+    async mounted() {
         this.loadingFeed = true;
-        setTimeout(() => {
-            this.feedStore.getCategoriesList()
-            this.feedStore.getPaintingsList()
+        try {
+            await this.feedStore.getCategoriesList();
+            await this.feedStore.getPaintingsList(); // Без category_id - все картины
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+        } finally {
             this.loadingFeed = false;
-        }, 1000);
+        }
     },
     computed: {
         ...mapStores(useFeedStore),
@@ -60,14 +63,25 @@ export default {
             return this.feedStore.paintingsList;
         },
         categories(){
-            return this.feedStore.categoriesList;
+            // Добавляем вкладку "Все" в начало списка
+            const allTab = { category_id: null, name: 'Все' };
+            return [allTab, ...this.feedStore.categoriesList];
         },
     },
     methods:{
         setTab(tab) {
             this.loadingFeed = true;
-            this.feedStore.getPaintingsList(tab.category_id)
-            this.loadingFeed = false;
+            // Если tab - это строка 'all' или объект без category_id, передаем null
+            const categoryId = (typeof tab === 'object' && tab !== null && tab.category_id !== undefined) 
+                ? tab.category_id 
+                : null;
+            
+            this.feedStore.getPaintingsList(categoryId).then(() => {
+                this.loadingFeed = false;
+            }).catch(() => {
+                this.loadingFeed = false;
+            });
+            
             this.$router.push({ name: 'Feed', params: { tab } })
         },
     }

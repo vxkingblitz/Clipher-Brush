@@ -12,9 +12,9 @@
         @tab-change="val => setTab(val)"
     />
 
-    <div v-if="menuTab == 'favourites'">
+    <div v-if="currentTabId == 'favourites'">
         <section class="feed-content" v-if="loadingFavourites">
-            <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
+            <SkeletonLoader v-for="n in 6" :key="n" style="width: 100%; height: 294px;" />
         </section>
 
         <div class="messageBox" v-if="favouritePaintingsList.length == 0 && !loadingFavourites">
@@ -27,9 +27,9 @@
         </section>
     </div>
 
-    <div v-if="menuTab == 'my_works'">
+    <div v-if="currentTabId == 'my_works'">
         <section class="feed-content" v-if="loadingMy">
-            <SkeletonLoader style="width: 100%; height: 294px;" v-for="i in 6" />
+            <SkeletonLoader v-for="n in 6" :key="n" style="width: 100%; height: 294px;" />
         </section>
 
         <div class="messageBox" v-if="paintingsListMy.length == 0 && !loadingMy">
@@ -52,32 +52,49 @@ import { mapStores } from 'pinia'
 export default {
     data(){
         return{
-            menuTab: 'favourites',
+            menuTab: { id: 'favourites', label: 'Избранное' },
             loadingFavourites: false,
             loadingMy: false,
         }
     },
-    mounted() {
+    async mounted() {
         this.loadingFavourites = true;
         this.loadingMy = true;
-        setTimeout(() => {
-            this.profileStore.getFavouritePaintingsList()
+        try {
+            await this.profileStore.getFavouritePaintingsList();
+            await this.profileStore.getMyPaintingsList();
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+        } finally {
             this.loadingFavourites = false;
-            this.profileStore.getMyPaintingsList()
             this.loadingMy = false;
-        }, 1000)
+        }
     },
     methods:{
-        setTab(tab) {
-            this.loadingFavourites = true;
-            this.loadingMy = true;
-            if(tab == 'favourites') {
-                this.profileStore.getFavouritePaintingsList()
-            } else {
-                this.profileStore.getMyPaintingsList()
+        async setTab(tab) {
+            // tab может быть объектом { id: 'favourites', label: 'Избранное' } или строкой
+            const tabId = typeof tab === 'object' && tab !== null ? tab.id : tab;
+            
+            if (tabId === 'favourites') {
+                this.loadingFavourites = true;
+                try {
+                    await this.profileStore.getFavouritePaintingsList();
+                } catch (error) {
+                    console.error('Ошибка загрузки избранного:', error);
+                } finally {
+                    this.loadingFavourites = false;
+                }
+            } else if (tabId === 'my_works') {
+                this.loadingMy = true;
+                try {
+                    await this.profileStore.getMyPaintingsList();
+                } catch (error) {
+                    console.error('Ошибка загрузки моих работ:', error);
+                } finally {
+                    this.loadingMy = false;
+                }
             }
-            this.loadingFavourites = false;
-            this.loadingMy = false;
+            
             this.$router.push({ name: 'Profile', params: { tab } })
         },
     },
@@ -87,7 +104,14 @@ export default {
             return this.profileStore.favouritePaintingsList;
         },
         paintingsListMy(){
-            return this.profileStore.paintingsListMy;
+            return this.profileStore.myPaintingsList;
+        },
+        currentTabId() {
+            // Извлекаем id из menuTab (может быть объектом или строкой)
+            if (typeof this.menuTab === 'object' && this.menuTab !== null) {
+                return this.menuTab.id;
+            }
+            return this.menuTab;
         },
     },
 }

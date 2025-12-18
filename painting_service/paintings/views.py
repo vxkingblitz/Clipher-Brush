@@ -246,11 +246,22 @@ class PublicPaintingFeedView(ListAPIView):
     serializer_class = PublicPaintingSerializer
 
     def get_queryset(self):
-        return (
-            Painting.objects
-            .filter(is_public=True, status="completed")
-            .order_by("-generated_at")
+        queryset = Painting.objects.filter(
+            is_public=True, 
+            status="completed"
         )
+        
+        # Фильтрация по category_id если передан
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            try:
+                category_id = int(category_id)
+                if category_id > 0:
+                    queryset = queryset.filter(category_id=category_id)
+            except (ValueError, TypeError):
+                pass  # Если не удалось преобразовать, игнорируем фильтр
+        
+        return queryset.order_by("-generated_at")
 
 
 class PublicPaintingDetailView(RetrieveAPIView):
@@ -324,7 +335,14 @@ class MyPaintgsListView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.request.headers.get("X-User-Id")
-        return Painting.objects.filter(user_id=user_id).order_by("-generated_at")
+        queryset = Painting.objects.filter(user_id=user_id)
+        
+        # Фильтрация по is_saved если передан параметр saved_only
+        saved_only = self.request.query_params.get('saved_only')
+        if saved_only and saved_only.lower() == 'true':
+            queryset = queryset.filter(is_saved=True)
+        
+        return queryset.order_by("-generated_at")
     
 
 class PaintingDetailView(APIView):

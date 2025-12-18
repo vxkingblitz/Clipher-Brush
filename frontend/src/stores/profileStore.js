@@ -16,6 +16,7 @@ export const useProfileStore = defineStore('profile', {
             const response = await this._makeRequest({
                 url: '/paintings/my/',
                 method: 'GET',
+                params: { saved_only: 'true' }
             })
             this.favouritePaintingsList = response.results || response.data?.results || response || []
         },
@@ -24,7 +25,7 @@ export const useProfileStore = defineStore('profile', {
                 url: '/paintings/my/',
                 method: 'GET',
             })
-            this.paintingsList = response.results || response.data?.results || response || []
+            this.myPaintingsList = response.results || response.data?.results || response || []
         },
     },
 })
