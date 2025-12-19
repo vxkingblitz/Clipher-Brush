@@ -412,6 +412,7 @@ span{
     flex-direction: column;
     gap: 10px;
     justify-content: center;
+    margin-bottom: 120px;
 }
 .createWrapper{
     height: 100svh;
