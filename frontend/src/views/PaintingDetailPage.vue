@@ -167,15 +167,11 @@ export default {
 
 .images-container {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
   gap: 30px;
-  overflow-x: scroll;
 }
 
 .image-item {
-  width: 300px;
-  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
