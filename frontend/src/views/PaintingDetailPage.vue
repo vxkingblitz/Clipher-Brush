@@ -110,7 +110,18 @@ export default {
         return
       }
 
-      // Скачиваем все изображения
+      // Проверка на мобильное устройство
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+      if (isMobile) {
+        // На мобильных устройствах открываем ссылки в новых вкладках/окнах (скачивание через a.download часто не работает)
+        images.forEach(image => {
+          window.open(image.url, '_blank')
+        })
+        return
+      }
+
+      // Скачиваем изображения через blob и a[download] (работает на десктопе)
       for (const image of images) {
         try {
           const response = await fetch(image.url)
@@ -123,7 +134,7 @@ export default {
           a.click()
           window.URL.revokeObjectURL(url)
           document.body.removeChild(a)
-          
+
           // Небольшая задержка между скачиваниями
           await new Promise(resolve => setTimeout(resolve, 300))
         } catch (error) {
@@ -156,8 +167,8 @@ export default {
 
 .images-container {
   display: flex;
-  flex-direction: column;
   gap: 30px;
+  overflow-x: scroll;
 }
 
 .image-item {

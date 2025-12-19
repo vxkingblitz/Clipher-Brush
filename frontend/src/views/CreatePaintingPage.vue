@@ -53,7 +53,7 @@
             <img class="imagePreview" :src="photoPreview" alt="photo_for_drawing">
             <h4>Генерация изображения</h4>
             <div class="loadingStatusWrapper">
-                <div class="loadingStatusActive" :style="{ width: loadingProgress + '%' }"></div>
+                <div class="loadingStatusActive" :class="{ 'error': hasError }" :style="{ width: loadingProgress + '%' }"></div>
             </div>
             <span>{{ loadingText }}</span>
         </div>
@@ -112,6 +112,8 @@ export default {
             shouldPublish: false,
             selectedCategory: null,
             isPublishing: false,
+            hasError: false,
+            loadingInterval: null,
 
             formData:{
                 photo: null,
@@ -142,6 +144,9 @@ export default {
             }
         },
         async generatePainting(){
+            // Сбрасываем состояние ошибки
+            this.hasError = false;
+            
             // Формируем payload только с валидными значениями
             let payload = {
                 photo: this.formData.photo,
@@ -184,6 +189,12 @@ export default {
                 const result = await this.generatorStore.generatePainting(payload);
                 console.log('Generation result:', result);
                 
+                // Останавливаем анимацию загрузки
+                if (this.loadingInterval) {
+                    clearInterval(this.loadingInterval);
+                    this.loadingInterval = null;
+                }
+                
                 this.createdPainting = result;
                 // Используем colored или numbered изображение для показа результата
                 this.resultImage = result.painting_colored || result.painting_numbered || this.photoPreview;
@@ -198,13 +209,35 @@ export default {
                 }, 500);
             } catch (error) {
                 console.error('Ошибка генерации:', error);
-                alert('Произошла ошибка при создании раскраски');
-                this.step = 2; // Возврат на шаг выбора параметров
+                
+                // Останавливаем анимацию загрузки
+                if (this.loadingInterval) {
+                    clearInterval(this.loadingInterval);
+                    this.loadingInterval = null;
+                }
+                
+                // Устанавливаем состояние ошибки
+                this.hasError = true;
+                this.loadingProgress = 100;
+                this.loadingText = 'Произошла ошибка';
+                
+                // Через 3 секунды возвращаем на шаг выбора параметров
+                setTimeout(() => {
+                    this.step = 2;
+                    this.hasError = false;
+                    this.loadingProgress = 0;
+                }, 3000);
             }
         },
         startLoadingAnimation() {
             this.loadingProgress = 0;
             this.loadingText = 'Загружаем изображение...';
+            this.hasError = false;
+            
+            // Очищаем предыдущий интервал, если он есть
+            if (this.loadingInterval) {
+                clearInterval(this.loadingInterval);
+            }
             
             const stages = [
                 { progress: 20, text: 'Анализируем цвета...' },
@@ -215,13 +248,14 @@ export default {
             ];
             
             let stageIndex = 0;
-            const interval = setInterval(() => {
-                if (stageIndex < stages.length && this.step === 3) {
+            this.loadingInterval = setInterval(() => {
+                if (stageIndex < stages.length && this.step === 3 && !this.hasError) {
                     this.loadingProgress = stages[stageIndex].progress;
                     this.loadingText = stages[stageIndex].text;
                     stageIndex++;
                 } else {
-                    clearInterval(interval);
+                    clearInterval(this.loadingInterval);
+                    this.loadingInterval = null;
                 }
             }, 2000);
         },
@@ -229,11 +263,18 @@ export default {
             this.$router.push({ name: 'Feed', params: { tab: 'all' } });
         },
         resetForm() {
+            // Останавливаем анимацию загрузки, если она активна
+            if (this.loadingInterval) {
+                clearInterval(this.loadingInterval);
+                this.loadingInterval = null;
+            }
+            
             this.step = 1;
             this.photoPreview = null;
             this.resultImage = null;
             this.createdPainting = null;
             this.loadingProgress = 0;
+            this.hasError = false;
             this.shouldPublish = false;
             this.selectedCategory = null;
             this.isPublishing = false;
@@ -291,6 +332,12 @@ export default {
         },
     },
     beforeUnmount() {
+        // Останавливаем анимацию загрузки при размонтировании
+        if (this.loadingInterval) {
+            clearInterval(this.loadingInterval);
+            this.loadingInterval = null;
+        }
+        
         if (this.photoPreview) {
             URL.revokeObjectURL(this.photoPreview);
         }
@@ -346,6 +393,9 @@ span{
     height: 20px;
     background-color: var(--color-main);
     transition: width 0.5s ease-out;
+}
+.loadingStatusActive.error{
+    background-color: #ff4444;
 }
 .imagePreview{
     object-fit: cover;
