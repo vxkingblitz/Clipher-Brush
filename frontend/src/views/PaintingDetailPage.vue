@@ -172,6 +172,8 @@ export default {
 }
 
 .image-item {
+  width: 300px;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;

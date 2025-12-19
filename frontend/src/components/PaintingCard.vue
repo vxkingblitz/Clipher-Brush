@@ -76,9 +76,6 @@
     cursor: pointer;
     transition: transform 0.2s ease;
 }
-.paintingCardWrapper:hover {
-    transform: scale(1.02);
-}
 .nickname{
     font-size: 12px;
     font-weight: 500;

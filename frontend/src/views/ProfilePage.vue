@@ -77,25 +77,25 @@ export default {
             
             if (tabId === 'favourites') {
                 this.loadingFavourites = true;
-                try {
-                    await this.profileStore.getFavouritePaintingsList();
-                } catch (error) {
-                    console.error('Ошибка загрузки избранного:', error);
-                } finally {
-                    this.loadingFavourites = false;
-                }
+                setTimeout(() => {
+                    this.profileStore.getFavouritePaintingsList().then(() => {
+                        this.loadingFavourites = false;
+                    }).catch(() => {
+                        this.loadingFavourites = false;
+                    });
+                    this.$router.push({ name: 'Profile', params: { tab } })
+                }, 300);
             } else if (tabId === 'my_works') {
                 this.loadingMy = true;
-                try {
-                    await this.profileStore.getMyPaintingsList();
-                } catch (error) {
-                    console.error('Ошибка загрузки моих работ:', error);
-                } finally {
-                    this.loadingMy = false;
-                }
+                setTimeout(() => {
+                    this.profileStore.getMyPaintingsList().then(() => {
+                        this.loadingMy = false;
+                    }).catch(() => {
+                        this.loadingMy = false;
+                    });
+                    this.$router.push({ name: 'Profile', params: { tab } })
+                }, 300);
             }
-            
-            this.$router.push({ name: 'Profile', params: { tab } })
         },
     },
     computed: {
