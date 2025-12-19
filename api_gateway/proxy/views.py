@@ -88,13 +88,17 @@ class ProxyView:
                 if 'application/json' not in headers.get('content-type', '').lower():
                     headers.pop('content-type', None)
         
+        # Увеличиваем таймаут для больших файлов
+        timeout = 300 if is_multipart else 30  # 5 минут для multipart запросов
+        
         response = requests.request(
             method=request.method,
             url=target_url,
             headers=headers,
             data=data,
             params=request.GET,
-            timeout=120 if is_multipart else 30,
+            timeout=timeout,
+            stream=False,  # Для небольших файлов (< 100MB) это нормально
         )
 
         # Создаем HttpResponse с содержимым ответа

@@ -130,4 +130,9 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Настройки для загрузки больших файлов
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB - максимальный размер данных в памяти
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB - максимальный размер файла в памяти
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Увеличиваем лимит на количество полей
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

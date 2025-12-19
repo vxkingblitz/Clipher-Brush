@@ -150,3 +150,8 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Настройки для загрузки больших файлов через gateway
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB - максимальный размер данных в памяти
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB - максимальный размер файла в памяти
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Увеличиваем лимит на количество полей
