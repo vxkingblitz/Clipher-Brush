@@ -87,9 +87,6 @@
                         :disabled="!selectedCategory"
                     />
                 </div>
-                
-                <ButtonComponent :variant="1" :label="'В ленту'" @click="goToFeed()" :isLoading="false"/>
-                <ButtonComponent :variant="3" :label="'Создать ещё'" @click="resetForm()" :isLoading="false"/>
             </div>
         </div>
     </div>
