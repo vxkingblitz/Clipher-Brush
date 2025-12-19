@@ -466,8 +466,18 @@ span{
 .checkbox-wrapper input[type="checkbox"] {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     cursor: pointer;
     accent-color: var(--color-main);
+    border: 2px solid var(--color-main);
+    border-radius: 4px;
+    background-color: var(--color-white);
+    appearance: auto;
+    -webkit-appearance: checkbox;
+    -moz-appearance: checkbox;
+    display: inline-block;
+    flex-shrink: 0;
 }
 .checkbox-wrapper label {
     font-family: 'Jost';
