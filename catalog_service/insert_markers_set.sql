@@ -128,3 +128,4 @@ VALUES (
         {"id": 120, "colorHex": "#BC8C88", "code": "658"}
     ]'::jsonb
 );
+

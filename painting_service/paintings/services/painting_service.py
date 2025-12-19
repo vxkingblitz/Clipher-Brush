@@ -13,7 +13,7 @@ class PaintingService:
             markers_set_id=validated_data.get("markers_set_id"),
             colors_amount=validated_data["colors_amount"],
             status="pending",
-            is_public=False,  # По умолчанию не публикуем, пользователь сам решит
+            is_public=False,  # По умолчанию не публикуем
         )
         print(f"PaintingService: Created painting {painting.painting_id} with username={painting.username}")
         return painting
