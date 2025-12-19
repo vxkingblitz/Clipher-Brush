@@ -167,6 +167,8 @@ export default {
 
 .images-container {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 30px;
   overflow-x: scroll;
 }
