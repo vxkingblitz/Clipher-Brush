@@ -64,6 +64,7 @@
     align-items: end;
     padding: 16px;
     gap: 10px;
+    min-width: 100%;
     width: 100%;
 }
 .paintingCardWrapper{
